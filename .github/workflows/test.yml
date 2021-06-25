@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  check-style:
+    name: Check style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Check style
+        run: |
+          sudo apt update
+          . scripts/ci_install_deps
+          poetry run make check-style
+
+  check-types:
+    name: Check types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Check types
+        run: |
+          sudo apt update
+          . scripts/ci_install_deps
+          poetry run make check-types
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Test (Python ${{ matrix.python-version }})
+        run: |
+          sudo apt update
+          . scripts/ci_install_deps
+          docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S"
+          docker run --rm -itd -p 5000:5000 rigetti/qvm -S
+          poetry run make test

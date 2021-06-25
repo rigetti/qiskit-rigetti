@@ -1,0 +1,114 @@
+default:
+  image: python:3.7
+  tags:
+    - ec2-docker
+
+stages:
+  - test
+  - deploy
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .cache/pip
+    - .venv
+
+include:
+  # Run all tasks on merge requests rather than branches
+  # See https://docs.gitlab.com/ee/ci/yaml/README.html#workflowrules-templates
+  - template: "Workflows/MergeRequest-Pipelines.gitlab-ci.yml"
+
+.install-dependencies:
+  &install-dependencies # Recommended install method for Poetry: https://python-poetry.org/docs/
+  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+  - source $HOME/.poetry/env
+  - poetry --version
+  - poetry config virtualenvs.in-project true
+  - poetry run python -m ensurepip --upgrade
+  - poetry install -vv
+
+.install-dephell: &install-dephell # Install dephell to auto-generate setup.py
+  - curl -L https://raw.githubusercontent.com/rigetti/dephell/master/install.py | python
+
+.install-npm: &install-npm
+  - curl -sL https://deb.nodesource.com/setup_12.x | bash -
+  - apt-get update
+  - apt-get install -f -y nodejs
+  - npm i
+
+.publish-pypi-internal: &publish-pypi-internal
+  - poetry config repositories.internal $PYPI_URL
+  - poetry config http-basic.internal rigetti $PYPI_PASSWORD
+  - poetry publish --build -r internal
+
+Checks:
+  stage: test
+  script:
+    - *install-dependencies
+    - poetry run make check-all
+  rules:
+    # Skip this job if it was triggered by a tag
+    - if: "$CI_COMMIT_TAG"
+      when: never
+    - when: always
+
+.unit-test:
+  variables:
+    QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL: "http://qvm:5000"
+    QCS_SETTINGS_APPLICATIONS_PYQUIL_QUILC_URL: "tcp://quilc:5555"
+  services:
+    - name: rigetti/qvm
+      alias: qvm
+      command: [ "-S" ]
+    - name: rigetti/quilc
+      alias: quilc
+      entrypoint: [ "bash", "-c", "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S" ]
+  coverage: '/TOTAL.*?(\d+)\%/'
+  script:
+    - *install-dependencies
+    - poetry run make test
+  stage: test
+
+Test Unit (3.7):
+  extends: .unit-test
+  image: python:3.7
+
+Test Unit (3.8):
+  extends: .unit-test
+  image: python:3.8
+
+Test Unit (3.9):
+  extends: .unit-test
+  image: python:3.9
+
+PyPi Publish Dev:
+  stage: deploy
+  script:
+    - *install-dependencies
+    - *install-dephell
+    - *install-npm
+    - npx semantic-release --branches $CI_COMMIT_REF --dry-run
+    - export MOST_RECENT_VERSION=$(git describe --abbrev=0 --tags | sed 's/v//')
+    - export VERSION_TAG="${MOST_RECENT_VERSION}dev${CI_JOB_ID}"
+    - poetry version "$VERSION_TAG"
+    - dephell deps convert
+    - *publish-pypi-internal
+  rules:
+    # Skip this job if running on master
+    - if: "$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH"
+      when: manual
+
+PyPi Publish Release:
+  stage: deploy
+  script:
+    - *install-dependencies
+    - *install-dephell
+    - *install-npm
+    # This performs the semantic-release configured in package.json.
+    # Depending on the config, this may add a tag and then push a release to Gitlab.
+    - npx semantic-release --branches master
+    # This reads the tag chosen by semantic-release
+    - *publish-pypi-internal
+  rules:
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+      when: on_success

@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "qiskit-rigetti-provider"
+version = "0.1.0"
+description = "Provider for running Qiskit circuits on Rigetti QPUs and simulators."
+authors = ["Rigetti Computing"]
+packages = [
+    { include = "qiskit_rigetti_provider" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+qiskit = "^0.27.0"
+pyquil = "3.0.0rc15"
+numpy = "^1.20.1"
+importlib_metadata = {version = "*", python = "<3.8"}
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+flake8 = "^3.8.1"
+pytest = "^6.2.2"
+pytest-cov = "^2.11.1"
+pytest-httpx = "^0.9"
+mypy = "^0.800"
+pytest-mock = "^3.6.1"
+
+[tool.black]
+line-length = 120
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # black-default
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
