@@ -1,0 +1,19 @@
+[flake8]
+
+# flake8 max-line-length set for manual linting.
+# Set this value as line-length under [tool.black] in pyproject.toml.
+max-line-length = 120
+
+# E203 : space before ":" (not PEP8 compliant)
+# E231 : missing whitespace after ‘,’, ‘;’, or ‘:’ (not Black compliant)
+# E741 : ambiguous variable name (unfortunately we need to use "I")
+# E743 : ambiguous function definition (unfortunately we need to use "I")
+# W503 : line break before binary operator (not PEP8 compliant)
+ignore = E203, E231, E741, E743, W503
+
+exclude =
+  .mypy_cache,
+  .venv,
+  __init__.py,
+  docs,
+  setup.py
