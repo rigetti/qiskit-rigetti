@@ -28,12 +28,12 @@
       ["@semantic-release/exec", {
         "prepareCmd": "sh prepare_release.sh ${nextRelease.version}"
       }],
-      "@semantic-release/gitlab",
+      "@semantic-release/github",
       ["@semantic-release/git", {
         "assets": ["pyproject.toml", "setup.py"],
         "message": "Release v${nextRelease.version} [skip ci]"
       }]
     ],
-    "repositoryUrl": "ssh://git@gitlab.com/rigetti/qcs/clients/rigetti-qiskit-provider.git"
+    "repositoryUrl": "ssh://git@github.com/rigetti/qiskit-rigetti-provider.git"
   }
 }

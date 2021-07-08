@@ -10,7 +10,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 qiskit = "^0.27.0"
-pyquil = "3.0.0rc15"
+pyquil = {version = "^3.0.0rc21", allow-prereleases = true}
 numpy = "^1.20.1"
 importlib_metadata = {version = "*", python = "<3.8"}
 
