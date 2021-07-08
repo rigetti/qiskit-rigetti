@@ -1,3 +1,5 @@
+[![Build](https://github.com/rigetti/qiskit-rigetti-provider/actions/workflows/test.yml/badge.svg)](https://github.com/rigetti/qiskit-rigetti-provider/actions/workflows/test.yml)
+
 # Qiskit Rigetti Provider
 
 ## Pre-requisites

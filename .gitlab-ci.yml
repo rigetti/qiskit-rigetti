@@ -105,8 +105,8 @@ PyPi Publish Release:
     - *install-dephell
     - *install-npm
     # This performs the semantic-release configured in package.json.
-    # Depending on the config, this may add a tag and then push a release to Gitlab.
-    - npx semantic-release --branches master
+    # Depending on the config, this may add a tag and then push a release to GitHub.
+    - npx semantic-release
     # This reads the tag chosen by semantic-release
     - *publish-pypi-internal
   rules:

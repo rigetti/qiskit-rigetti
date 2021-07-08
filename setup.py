@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'importlib-metadata; python_version < "3.8"',
         "numpy==1.*,>=1.20.1",
-        "pyquil==3.0.0rc15",
+        "pyquil==3.0.0rc21",
         "qiskit==0.*,>=0.27.0",
     ],
     extras_require={
