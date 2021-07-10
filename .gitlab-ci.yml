@@ -13,11 +13,6 @@ cache:
     - .cache/pip
     - .venv
 
-include:
-  # Run all tasks on merge requests rather than branches
-  # See https://docs.gitlab.com/ee/ci/yaml/README.html#workflowrules-templates
-  - template: "Workflows/MergeRequest-Pipelines.gitlab-ci.yml"
-
 .install-dependencies:
   &install-dependencies # Recommended install method for Poetry: https://python-poetry.org/docs/
   - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
