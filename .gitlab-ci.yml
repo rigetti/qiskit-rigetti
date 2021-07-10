@@ -41,11 +41,6 @@ Checks:
   script:
     - *install-dependencies
     - poetry run make check-all
-  rules:
-    # Skip this job if it was triggered by a tag
-    - if: "$CI_COMMIT_TAG"
-      when: never
-    - when: always
 
 .unit-test:
   variables:
