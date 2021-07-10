@@ -91,11 +91,19 @@ class RigettiQCSJob(JobV1):
         if rewiring:
             qasm = qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
 
+        map_qasm = self._options.get("map_qasm")
+        if map_qasm:
+            qasm = map_qasm(qasm)
+
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        native_program = self._qc.compiler.quil_to_native_quil(program, protoquil=True)
+        native_program = self._qc.compiler.quil_to_native_quil(program)
 
         if metadata.get("active_reset"):
             native_program.prepend_instructions([RESET()])
+
+        map_quil = self._options.get("map_quil")
+        if map_quil:
+            native_program = map_quil(native_program)
 
         compiled = self._qc.compiler.native_quil_to_executable(native_program)
 

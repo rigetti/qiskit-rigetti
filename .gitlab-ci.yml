@@ -52,7 +52,7 @@ Checks:
       command: [ "-S" ]
     - name: rigetti/quilc
       alias: quilc
-      entrypoint: [ "bash", "-c", "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S" ]
+      entrypoint: [ "bash", "-c", "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S -P" ]
   coverage: '/TOTAL.*?(\d+)\%/'
   script:
     - *install-dependencies

@@ -10,10 +10,6 @@
 
 ## Setup QVM and quilc
 
-> **NOTE:**
-> 
-> For rewiring pragma support (i.e. `QuilCircuit.set_rewiring()`), ensure the quilc version is at least v1.25.
-
 ### Using Docker Compose
 
 Run `docker compose up` to see service logs or `docker compose up -d` to run in the background.
@@ -62,6 +58,61 @@ counts = result.get_counts(circuit)
 print("Result memory:", memory)
 print("Result counts:", counts)
 ```
+
+### Advanced
+
+#### Active Reset
+
+Enable or disable [active reset](https://github.com/quil-lang/quil/blob/master/spec/Quil.md#state-reset) on a
+circuit with `QuilCircuit.set_active_reset()`.
+
+#### Compiler Rewiring
+
+Set a [rewiring directive](https://pyquil-docs.rigetti.com/en/stable/compiler.html#initial-rewiring) on a circuit with
+`QuilCircuit.set_rewiring()`.
+  
+> **Note:** Requires `quilc` v1.25 or higher
+
+#### Lifecycle Hooks
+
+For more advanced QASM and Quil modification, pass a `map_qasm` or `map_quil` function as a keyword argument to
+`RigettiQCSBackend.run()` or to Qiskit's `execute()`.
+
+A QASM modification will apply just before compilation from QASM to native Quil.
+
+For example:
+
+```python
+...
+
+def map_qasm(qasm: str) -> str:
+   new_qasm = ...
+   return new_qasm
+
+job = execute(circuit, backend, shots=10, map_qasm=map_qasm)
+
+...
+```
+
+A Quil modification will apply just before execution (after translation from QASM to native Quil).
+
+For example:
+
+```python
+from pyquil import Program
+
+...
+
+def map_quil(quil: Program) -> Program:
+   new_quil = ...
+   return new_quil
+
+job = execute(circuit, backend, shots=10, map_quil=map_quil)
+
+...
+```
+
+> **Note:** Quil transformations must produce native Quil.
 
 ## Development
 
