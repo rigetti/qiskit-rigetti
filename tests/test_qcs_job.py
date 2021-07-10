@@ -31,17 +31,32 @@ def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
         make_job(backend, circuit)
 
 
-def test_init__start_circuit_with_rewiring(backend: RigettiQCSBackend, mocker: MockerFixture):
+def test_init__circuit_with_rewiring(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(backend.configuration().num_qubits)
     circuit.set_rewiring("NAIVE")
     qc = get_qc(backend.configuration().backend_name)
-    qc_compile = mocker.spy(qc, "compile")
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
 
     make_job(backend, circuit, qc)
 
-    program: Program = qc_compile.call_args[0][0]
+    program: Program = quil_to_native_quil_spy.call_args[0][0]
     qasm = program.out(calibrations=False)
-    assert qasm.startswith('OPENQASM 2.0;\n#pragma INITIAL_REWIRING "NAIVE"')
+    assert qasm.startswith(
+        'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "NAIVE"'
+    ), "circuit does not contain rewiring directive"
+
+
+def test_init__circuit_with_active_reset(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    circuit.set_active_reset()
+    qc = get_qc(backend.configuration().backend_name)
+    compiler_native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
+
+    make_job(backend, circuit, qc)
+
+    program: Program = compiler_native_quil_to_executable_spy.call_args[0][0]
+    quil = program.out(calibrations=False)
+    assert quil.startswith("RESET\n"), "circuit does not start with RESET"
 
 
 def test_result(job: RigettiQCSJob):

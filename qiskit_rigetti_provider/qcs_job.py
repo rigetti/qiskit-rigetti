@@ -23,6 +23,7 @@ from pyquil import Program
 from pyquil.api import QuantumComputer
 from pyquil.api._qpu import QPUExecuteResponse
 from pyquil.api._qvm import QVMExecuteResponse
+from pyquil.gates import RESET
 from pyquil.quilbase import RawInstr
 from qiskit import QuantumCircuit
 from qiskit.providers import JobStatus, JobV1, Backend
@@ -84,11 +85,19 @@ class RigettiQCSJob(JobV1):
     def _start_circuit(self, circuit: QuantumCircuit) -> Response:
         shots = self._options["shots"]
         qasm = circuit.qasm()
-        rewiring = (circuit.metadata or {}).get("rewiring")
+        metadata = circuit.metadata or {}
+
+        rewiring = metadata.get("rewiring")
         if rewiring:
             qasm = qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
+
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        compiled = self._qc.compile(program, protoquil=True)
+        native_program = self._qc.compiler.quil_to_native_quil(program, protoquil=True)
+
+        if metadata.get("active_reset"):
+            native_program.prepend_instructions([RESET()])
+
+        compiled = self._qc.compiler.native_quil_to_executable(native_program)
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
         return cast(Response, self._qc.qam.execute(compiled))

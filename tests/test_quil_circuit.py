@@ -30,6 +30,13 @@ def test_set_rewiring():
     assert circuit.metadata["rewiring"] == "NAIVE"
 
 
+def test_set_active_reset():
+    circuit = QuilCircuit()
+    circuit.set_active_reset(True)
+
+    assert circuit.metadata["active_reset"] is True
+
+
 def test_xy():
     circuit = QuilCircuit(2, 2)
 
