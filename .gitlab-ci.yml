@@ -73,6 +73,7 @@ Test Unit (3.9):
 
 PyPi Publish Dev:
   stage: deploy
+  allow_failure: true
   script:
     - *install-dependencies
     - *install-dephell
