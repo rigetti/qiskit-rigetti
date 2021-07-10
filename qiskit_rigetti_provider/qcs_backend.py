@@ -21,7 +21,7 @@ from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
 from qcs_api_client.client import QCSClientConfiguration
 from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Barrier, Measure, Clbit
+from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
@@ -44,8 +44,9 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     Errors if measuring into more than one readout. If only measuring one, ensures its name is 'ro'. Mutates the input
     circuit.
     """
+    bit_info = {bit: {"reg": reg, "idx": i} for reg in circuit.cregs for i, bit in enumerate(reg)}
     measures = [d for d in circuit.data if isinstance(d[0], Measure)]
-    readout_names = list({clbit.register.name for m in measures for clbit in m[2]})
+    readout_names = list({bit_info[clbit]["reg"].name for m in measures for clbit in m[2]})
 
     if len(readout_names) > 1:
         readout_names.sort()
@@ -55,25 +56,27 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     elif len(readout_names) == 1:
         name = readout_names[0]
         if name != "ro":
-            # Rename register to "ro"
             for i, reg in enumerate(circuit.cregs):
                 if reg.name == name:
-                    circuit.cregs[i] = ClassicalRegister(size=reg.size, name="ro")
+                    # rename register to "ro"
+                    ro_reg = ClassicalRegister(size=reg.size, name="ro")
+                    circuit.cregs[i] = ro_reg
 
-            # Rename register references to "ro"
-            for m in measures:
-                for i, clbit in enumerate(m[2]):
-                    if clbit.register.name == name:
-                        m[2][i] = Clbit(
-                            register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                            index=clbit.index,
-                        )
-            for i, clbit in enumerate(circuit.clbits):
-                if clbit.register.name == name:
-                    circuit.clbits[i] = Clbit(
-                        register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                        index=clbit.index,
-                    )
+                    # fix classical bit references in circuit
+                    for i, clbit in enumerate(circuit.clbits):
+                        orig_reg = bit_info[clbit]["reg"]
+                        if orig_reg.name == name:
+                            idx = bit_info[clbit]["idx"]
+                            circuit.clbits[i] = ro_reg[idx]
+
+                    # fix classical bit references in measures
+                    for m in measures:
+                        for i, clbit in enumerate(m[2]):
+                            orig_reg = bit_info[clbit]["reg"]
+                            if orig_reg.name == name:
+                                idx = bit_info[clbit]["idx"]
+                                m[2][i] = ro_reg[idx]
+                    break
 
 
 def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
