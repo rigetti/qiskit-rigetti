@@ -10,10 +10,6 @@
 
 ## Setup QVM and quilc
 
-> **NOTE:**
-> 
-> For rewiring pragma support (i.e. `QuilCircuit.set_rewiring()`), ensure the quilc version is at least v1.25.
-
 ### Using Docker Compose
 
 Run `docker compose up` to see service logs or `docker compose up -d` to run in the background.
@@ -61,6 +57,112 @@ memory = result.get_memory(circuit)
 counts = result.get_counts(circuit)
 print("Result memory:", memory)
 print("Result counts:", counts)
+```
+
+## Advanced
+
+### Lifecycle Hooks
+
+For advanced QASM and Quil manipulation, `before_compile` and `before_execute` keyword arguments can be passed to
+`RigettiQCSBackend.run()` or to Qiskit's `execute()`.
+
+#### Pre-compilation Hooks
+
+The `before_compile` hook will apply just before compilation from QASM to native Quil.
+For example:
+
+```python
+...
+
+def custom_hook(qasm: str) -> str:
+   new_qasm = ...
+   return new_qasm
+
+job = execute(circuit, backend, shots=10, before_compile=custom_hook)
+
+...
+```
+
+#### Pre-execution Hooks
+
+The `before_execute` hook will apply just before execution (after translation from QASM to native Quil).
+For example:
+
+```python
+from pyquil import Program
+
+...
+
+def custom_hook(quil: Program) -> Program:
+   new_quil = ...
+   return new_quil
+
+job = execute(circuit, backend, shots=10, before_execute=custom_hook)
+
+...
+```
+
+> **Note**:
+> 
+> Only [certain forms of Quil can can be executed on a QPU](https://pyquil-docs.rigetti.com/en/stable/compiler.html?highlight=protoquil#legal-compiler-input).
+> If pre-execution transformations produce a final program that is not QPU-compliant, `ensure_native_quil=True` can be
+> passed to `execute()` or `RigettiQCSBackend.run()` to recompile the final Quil program to native Quil prior to
+> execution. If no pre-execution hooks were supplied, this setting is ignored. If this setting is omitted, a value of
+> `False` is assumed.
+
+#### Built-in Hooks
+
+The `hooks.pre_compilation` and `hooks.pre_execution` packages provide a number of convenient hooks:
+
+##### `set_rewiring`
+
+Use `set_rewiring` to provide a [rewiring directive](https://pyquil-docs.rigetti.com/en/stable/compiler.html#initial-rewiring)
+to the Quil compiler. For example:
+
+```python
+from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
+
+...
+
+job = execute(circuit, backend, shots=10, before_compile=set_rewiring("NAIVE"))
+
+...
+```
+
+> **Note**: Rewiring directives require `quilc` version 1.25 or higher.
+
+##### `enable_active_reset`
+
+Use `enable_active_reset` to enable [active qubit reset](https://github.com/quil-lang/quil/blob/master/spec/Quil.md#state-reset),
+an optimization that can significantly reduce the time between executions. For example:
+
+```python
+from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
+
+...
+
+job = execute(circuit, backend, shots=10, before_execute=enable_active_reset)
+
+...
+```
+
+#### Multiple Hooks
+
+To use multiple hooks, simply supply a list of hooks for either `before_compile` or `before_execute`, and the
+provided hooks will be executed in order. For example:
+
+```python
+from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
+
+...
+
+def custom_hook(quil: Program) -> Program:
+   new_quil = ...
+   return new_quil
+
+job = execute(circuit, backend, shots=10, before_execute=[enable_active_reset, custom_hook])
+
+...
 ```
 
 ## Development

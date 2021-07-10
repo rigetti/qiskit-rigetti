@@ -21,10 +21,12 @@ from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
 from qcs_api_client.client import QCSClientConfiguration
 from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Barrier, Measure, Clbit
+from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
+from .hooks.pre_compilation import PreCompilationHook
+from .hooks.pre_execution import PreExecutionHook
 from .qcs_job import RigettiQCSJob
 
 
@@ -44,36 +46,51 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     Errors if measuring into more than one readout. If only measuring one, ensures its name is 'ro'. Mutates the input
     circuit.
     """
-    measures = [d for d in circuit.data if isinstance(d[0], Measure)]
-    readout_names = list({clbit.register.name for m in measures for clbit in m[2]})
 
-    if len(readout_names) > 1:
+    # cache register locations for each bit in circuit
+    bit_info = {bit: {"reg": reg, "idx": i} for reg in circuit.cregs for i, bit in enumerate(reg)}
+
+    # NOTE: each measure is a tuple of the form (measure, qubits, classical bits)
+    measures = [d for d in circuit.data if isinstance(d[0], Measure)]
+    readout_names = list({bit_info[clbit]["reg"].name for m in measures for clbit in m[2]})
+    num_readouts = len(readout_names)
+
+    if num_readouts == 0:
+        return
+
+    if num_readouts > 1:
         readout_names.sort()
         raise RuntimeError(
             f"Multiple readout registers are unsupported on QCSBackend; found {', '.join(readout_names)}"
         )
-    elif len(readout_names) == 1:
-        name = readout_names[0]
-        if name != "ro":
-            # Rename register to "ro"
-            for i, reg in enumerate(circuit.cregs):
-                if reg.name == name:
-                    circuit.cregs[i] = ClassicalRegister(size=reg.size, name="ro")
 
-            # Rename register references to "ro"
-            for m in measures:
-                for i, clbit in enumerate(m[2]):
-                    if clbit.register.name == name:
-                        m[2][i] = Clbit(
-                            register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                            index=clbit.index,
-                        )
-            for i, clbit in enumerate(circuit.clbits):
-                if clbit.register.name == name:
-                    circuit.clbits[i] = Clbit(
-                        register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                        index=clbit.index,
-                    )
+    orig_readout_name = readout_names[0]
+    if orig_readout_name == "ro":
+        return
+
+    for i, reg in enumerate(circuit.cregs):
+        if reg.name != orig_readout_name:
+            continue
+
+        # rename register to "ro"
+        ro_reg = ClassicalRegister(size=reg.size, name="ro")
+        circuit.cregs[i] = ro_reg
+
+        # fix classical bit references in circuit
+        for i, clbit in enumerate(circuit.clbits):
+            orig_reg = bit_info[clbit]["reg"]
+            if orig_reg.name == orig_readout_name:
+                idx = bit_info[clbit]["idx"]
+                circuit.clbits[i] = ro_reg[idx]
+
+        # fix classical bit references in measures
+        for m in measures:
+            for i, clbit in enumerate(m[2]):
+                orig_reg = bit_info[clbit]["reg"]
+                if orig_reg.name == orig_readout_name:
+                    idx = bit_info[clbit]["idx"]
+                    m[2][i] = ro_reg[idx]
+        break
 
 
 def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
@@ -124,9 +141,44 @@ class RigettiQCSBackend(BackendV1):
     def _default_options(cls) -> Options:
         return Options(shots=None)
 
-    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> RigettiQCSJob:
+    def run(
+        self,
+        run_input: Union[QuantumCircuit, List[QuantumCircuit]],
+        *,
+        before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
+        before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
+        ensure_native_quil: bool = False,
+        **options: Any,
+    ) -> RigettiQCSJob:
+        """Run on the backend.
+
+        This method that will return a :class:`~qiskit_rigetti_provider.RigettiQCSJob` object that runs circuits
+        asynchronously.
+
+        :param run_input: An individual or a list of :class:`~qiskit.circuits.QuantumCircuit` objects to run on the
+            backend.
+        :param before_compile: An individual or a list of functions following the
+            :class:`~qiskit_rigetti_provider.hooks.pre_compilation.PreCompilationHook` signature, used to transform QASM
+             prior to compilation.
+        :param before_execute: An individual or a list of functions following the
+            :class:`~qiskit_rigetti_provider.hooks.pre_execution.PreExecutionHook` signature, used to transform Quil
+            prior to execution.
+        :param ensure_native_quil: Whether or not to recompile after pre-execution hooks.
+        :param options: Any kwarg options to pass to the backend for running the circuits.
+        :return: The job object for the run.
+        """
         if not isinstance(run_input, list):
             run_input = [run_input]
+
+        if before_compile is None:
+            before_compile = []
+        elif not isinstance(before_compile, list):
+            before_compile = [before_compile]
+
+        if before_execute is None:
+            before_execute = []
+        elif not isinstance(before_execute, list):
+            before_execute = [before_execute]
 
         run_input = [_prepare_circuit(circuit) for circuit in run_input]
 
@@ -139,12 +191,14 @@ class RigettiQCSBackend(BackendV1):
                 engagement_manager=self._engagement_manager,
             )
 
-        job = RigettiQCSJob(
+        return RigettiQCSJob(
             job_id=str(uuid4()),
             circuits=run_input,
             options=options,
             qc=self._qc,
             backend=self,
             configuration=self.configuration(),
+            before_compile=before_compile,
+            before_execute=before_execute,
+            ensure_native_quil=ensure_native_quil,
         )
-        return job

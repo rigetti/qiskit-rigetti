@@ -66,6 +66,6 @@ jobs:
         run: |
           sudo apt update
           . scripts/ci_install_deps
-          docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S"
+          docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S -P"
           docker run --rm -itd -p 5000:5000 rigetti/qvm -S
           poetry run make test
