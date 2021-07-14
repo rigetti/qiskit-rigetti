@@ -23,7 +23,6 @@ from pyquil import Program
 from pyquil.api import QuantumComputer
 from pyquil.api._qpu import QPUExecuteResponse
 from pyquil.api._qvm import QVMExecuteResponse
-from pyquil.gates import RESET
 from pyquil.quilbase import RawInstr
 from qiskit import QuantumCircuit
 from qiskit.providers import JobStatus, JobV1, Backend
@@ -85,25 +84,21 @@ class RigettiQCSJob(JobV1):
     def _start_circuit(self, circuit: QuantumCircuit) -> Response:
         shots = self._options["shots"]
         qasm = circuit.qasm()
-        metadata = circuit.metadata or {}
 
-        rewiring = metadata.get("rewiring")
-        if rewiring:
-            qasm = qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
+        # TODO (andrew):
+        # - Support sequences of hooks
+        # - Support recompilation when needed
 
-        map_qasm = self._options.get("map_qasm")
-        if map_qasm:
-            qasm = map_qasm(qasm)
+        before_compile = self._options.get("before_compile")
+        if before_compile is not None:
+            qasm = before_compile(qasm)
 
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
         native_program = self._qc.compiler.quil_to_native_quil(program)
 
-        if metadata.get("active_reset"):
-            native_program.prepend_instructions([RESET()])
-
-        map_quil = self._options.get("map_quil")
-        if map_quil:
-            native_program = map_quil(native_program)
+        before_execute = self._options.get("before_execute")
+        if before_execute is not None:
+            native_program = before_execute(native_program)
 
         compiled = self._qc.compiler.native_quil_to_executable(native_program)
 

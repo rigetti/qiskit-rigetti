@@ -18,4 +18,4 @@ check-types:
 
 .PHONY: test
 test:
-	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term tests
+	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --cov-report=html tests

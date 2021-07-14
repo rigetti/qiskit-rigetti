@@ -31,55 +31,7 @@ def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
         make_job(backend, circuit)
 
 
-def test_init__circuit_with_rewiring(backend: RigettiQCSBackend, mocker: MockerFixture):
-    circuit = make_circuit(backend.configuration().num_qubits)
-    circuit.set_rewiring("NAIVE")
-    qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
-
-    make_job(backend, circuit, qc)
-
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
-    qasm = program.out(calibrations=False).rstrip()
-    assert qasm == "\n".join(
-        [
-            "OPENQASM 2.0;",
-            '#pragma INITIAL_REWIRING "NAIVE"',
-            'include "qelib1.inc";',
-            "qreg q[2];",
-            "creg ro[2];",
-            "h q[0];",
-            "measure q[0] -> ro[0];",
-            "measure q[1] -> ro[1];",
-        ]
-    )
-
-
-def test_init__circuit_with_active_reset(backend: RigettiQCSBackend, mocker: MockerFixture):
-    circuit = make_circuit(backend.configuration().num_qubits)
-    circuit.set_active_reset()
-    qc = get_qc(backend.configuration().backend_name)
-    compiler_native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
-
-    make_job(backend, circuit, qc)
-
-    program: Program = compiler_native_quil_to_executable_spy.call_args[0][0]
-    quil = program.out(calibrations=False).rstrip()
-    assert quil == "\n".join(
-        [
-            "RESET",
-            "DECLARE ro BIT[2]",
-            "RZ(pi) 0",
-            "RX(pi/2) 0",
-            "RZ(pi/2) 0",
-            "RX(-pi/2) 0",
-            "MEASURE 1 ro[1]",
-            "MEASURE 0 ro[0]",
-        ]
-    )
-
-
-def test_init__qasm_mapper(backend: RigettiQCSBackend, mocker: MockerFixture):
+def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(backend.configuration().num_qubits)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
@@ -95,7 +47,7 @@ def test_init__qasm_mapper(backend: RigettiQCSBackend, mocker: MockerFixture):
         ]
     )
 
-    def map_qasm(qasm: str) -> str:
+    def before_compile(qasm: str) -> str:
         assert qasm.rstrip() == "\n".join(
             [
                 "OPENQASM 2.0;",
@@ -109,23 +61,23 @@ def test_init__qasm_mapper(backend: RigettiQCSBackend, mocker: MockerFixture):
         )
         return new_qasm
 
-    make_job(backend, circuit, qc, map_qasm=map_qasm)
+    make_job(backend, circuit, qc, before_compile=before_compile)
 
     program: Program = quil_to_native_quil_spy.call_args[0][0]
     qasm = program.out(calibrations=False).rstrip()
     assert qasm == new_qasm
 
 
-def test_init__quil_mapper(backend: RigettiQCSBackend, mocker: MockerFixture):
+def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(backend.configuration().num_qubits)
     qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
+    native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
 
     new_quil = Program(
         "DECLARE x BIT[1]",
     )
 
-    def map_quil(quil: Program) -> Program:
+    def before_execute(quil: Program) -> Program:
         assert quil == Program(
             "DECLARE ro BIT[2]",
             "RZ(pi) 0",
@@ -137,9 +89,9 @@ def test_init__quil_mapper(backend: RigettiQCSBackend, mocker: MockerFixture):
         )
         return new_quil
 
-    make_job(backend, circuit, qc, map_quil=map_quil)
+    make_job(backend, circuit, qc, before_execute=before_execute)
 
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
+    program: Program = native_quil_to_executable_spy.call_args[0][0]
     assert program == new_quil
 
 

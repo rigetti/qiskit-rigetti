@@ -31,24 +31,6 @@ class QuilCircuit(QuantumCircuit):
     https://github.com/rigetti/quilc/blob/master/src/quil/stdgates.quil
     """
 
-    def set_rewiring(self, directive: str) -> None:
-        """
-        Set compiler directive for rewiring.
-
-        See: https://pyquil-docs.rigetti.com/en/stable/compiler.html#initial-rewiring for more information.
-        """
-        self._set_metadata("rewiring", directive)
-
-    def set_active_reset(self, enable: bool = True) -> None:
-        """
-        Enable or disable active qubit reset.
-
-        See: https://github.com/quil-lang/quil/blob/master/spec/Quil.md#state-reset for more information.
-
-        :param enable: Whether or not to enable active reset.
-        """
-        self._set_metadata("active_reset", enable)
-
     def xy(self, theta: float, qubit1: Any, qubit2: Any) -> InstructionSet:
         """Apply :class:`qiskit_rigetti_provider.gates.xy.XYGate`."""
         return self.append(XYGate(theta), [qubit1, qubit2], [])
@@ -76,8 +58,3 @@ class QuilCircuit(QuantumCircuit):
     def can(self, alpha: float, beta: float, gamma: float, qubit1: Any, qubit2: Any) -> InstructionSet:
         """Apply :class:`qiskit_rigetti_provider.gates.can.CanonicalGate`."""
         return self.append(CanonicalGate(alpha, beta, gamma), [qubit1, qubit2], [])
-
-    def _set_metadata(self, key: str, value: Any) -> None:
-        current = self.metadata or {}  # type: ignore
-        new = {key: value}
-        self.metadata = {**current, **new}
