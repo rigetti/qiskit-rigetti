@@ -24,7 +24,7 @@ from qiskit.providers import JobStatus
 
 from qiskit_rigetti_provider import RigettiQCSJob, RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
 from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
-from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
+from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook, enable_active_reset
 
 
 def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
@@ -187,6 +187,36 @@ def test_init__multiple_before_execute_hooks(backend: RigettiQCSBackend, mocker:
     assert program == new_quil_2
 
 
+def test_init__ensure_native_quil__true(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, before_execute=enable_active_reset, ensure_native_quil=True)
+
+    assert quil_to_native_quil_spy.call_count == 2, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__ignored_if_no_pre_execution_hooks(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, ensure_native_quil=True)
+
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__false(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, ensure_native_quil=False)
+
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+
+
 def test_result(job: RigettiQCSJob):
     result = job.result()
 
@@ -215,8 +245,8 @@ def test_cancel(job: RigettiQCSJob):
 
 def test_submit(job: RigettiQCSJob):
     with pytest.raises(
-        NotImplementedError,
-        match="'submit' is not implemented as this class uses the asynchronous pattern",
+            NotImplementedError,
+            match="'submit' is not implemented as this class uses the asynchronous pattern",
     ):
         job.submit()
 
@@ -240,12 +270,13 @@ def make_circuit(num_qubits) -> QuilCircuit:
 
 
 def make_job(
-    backend,
-    circuit,
-    qc: Optional[QuantumComputer] = None,
-    before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
-    before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
-    **options: Any,
+        backend,
+        circuit,
+        qc: Optional[QuantumComputer] = None,
+        before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
+        before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
+        ensure_native_quil: bool = False,
+        **options: Any,
 ):
     qc = qc or get_qc(backend.configuration().backend_name)
     job = RigettiQCSJob(
@@ -257,6 +288,7 @@ def make_job(
         configuration=backend.configuration(),
         before_compile=before_compile or [],
         before_execute=before_execute or [],
+        ensure_native_quil=ensure_native_quil,
     )
 
     return job

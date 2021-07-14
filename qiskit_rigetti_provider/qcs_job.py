@@ -53,6 +53,7 @@ class RigettiQCSJob(JobV1):
         configuration: QasmBackendConfiguration,
         before_compile: Union[PreCompilationHook, List[PreCompilationHook]],
         before_execute: Union[PreExecutionHook, List[PreExecutionHook]],
+        ensure_native_quil: bool,
     ) -> None:
         """
         Create new job.
@@ -63,9 +64,10 @@ class RigettiQCSJob(JobV1):
         :param qc: quantum computer to run against
         :param backend: backend that created this job
         :param configuration: configuration from parent backend
+        :param configuration: list of pre-execution hooks
         :param before_compile: individual or list of pre-compilation hooks
         :param before_execute: individual or list of pre-execution hooks
-        :param configuration: list of pre-execution hooks
+        :param ensure_native_quil: whether or not to recompile after pre-execution hooks
         """
         super().__init__(backend, job_id)
 
@@ -85,6 +87,7 @@ class RigettiQCSJob(JobV1):
             before_execute = [before_execute]
         self._before_execute: List[PreExecutionHook] = before_execute
 
+        self._ensure_native_quil = ensure_native_quil
         self._start()
 
     def submit(self) -> None:
@@ -103,9 +106,6 @@ class RigettiQCSJob(JobV1):
         shots = self._options["shots"]
         qasm = circuit.qasm()
 
-        # TODO (andrew):
-        # - Support recompilation when needed
-
         for pre_compile in self._before_compile:
             qasm = pre_compile(qasm)
 
@@ -115,10 +115,13 @@ class RigettiQCSJob(JobV1):
         for before_execute in self._before_execute:
             program = before_execute(program)
 
-        compiled = self._qc.compiler.native_quil_to_executable(program)
+        if self._ensure_native_quil and len(self._before_execute) > 0:
+            program = self._qc.compiler.quil_to_native_quil(program)
+
+        executable = self._qc.compiler.native_quil_to_executable(program)
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
-        return cast(Response, self._qc.qam.execute(compiled))
+        return cast(Response, self._qc.qam.execute(executable))
 
     def result(self) -> Result:
         """

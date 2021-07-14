@@ -102,6 +102,14 @@ job = execute(circuit, backend, shots=10, before_execute=custom_hook)
 ...
 ```
 
+> **Note**:
+> 
+> Only [certain forms of Quil can can be executed on a QPU](https://pyquil-docs.rigetti.com/en/stable/compiler.html?highlight=protoquil#legal-compiler-input).
+> If pre-execution transformations produce a final program that is not QPU-complient, `ensure_native_quil=True` can be
+> passed to `execute` or `RigettiQCSBackend.run()` to recompile the final Quil program to native Quil prior to
+> execution. If no pre-execution hooks were supplied, this setting is ignored. If this setting is omitted, a value of
+> `False` is assumed.
+
 #### Built-in Hooks
 
 The `hooks.pre_compilation` and `hooks.pre_execution` packages provide a number of convenient hooks:

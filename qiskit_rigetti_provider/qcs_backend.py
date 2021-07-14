@@ -135,27 +135,25 @@ class RigettiQCSBackend(BackendV1):
         *,
         before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
         before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
+        ensure_native_quil: bool = False,
         **options: Any,
     ) -> RigettiQCSJob:
         """Run on the backend.
 
-        This method that will return a :class:`~qiskit_rigetti_provider.RigettiQCSJob` object
-        that runs circuits asynchronously.
+        This method that will return a :class:`~qiskit_rigetti_provider.RigettiQCSJob` object that runs circuits
+        asynchronously.
 
-        Args:
-            run_input (QuantumCircuit or list): An individual or a
-                list of :class:`~qiskit.circuits.QuantumCircuit` objects to run
-                on the backend.
-            before_compile (PreCompilationHook or list): An individual or a list of functions
-                following the :class:`~qiskit_rigetti_provider.hooks.pre_compilation.PreCompilationHook`
-                signature, used to transform QASM prior to compilation.
-            before_execute (PreExecutionHook or list): An individual or a list of functions
-                following the :class:`~qiskit_rigetti_provider.hooks.pre_execution.PreExecutionHook`
-                signature, used to transform Quil prior to execution.
-            options: Any kwarg options to pass to the backend for running the
-                circuits.
-        Returns:
-            RigettiQCSJob: The job object for the run.
+        :param run_input: An individual or a list of :class:`~qiskit.circuits.QuantumCircuit` objects to run on the
+            backend.
+        :param before_compile: An individual or a list of functions following the
+            :class:`~qiskit_rigetti_provider.hooks.pre_compilation.PreCompilationHook` signature, used to transform QASM
+             prior to compilation.
+        :param before_execute: An individual or a list of functions following the
+            :class:`~qiskit_rigetti_provider.hooks.pre_execution.PreExecutionHook` signature, used to transform Quil
+            prior to execution.
+        :param ensure_native_quil: Whether or not to recompile after pre-execution hooks.
+        :param options: Any kwarg options to pass to the backend for running the circuits.
+        :return: The job object for the run.
         """
         if not isinstance(run_input, list):
             run_input = [run_input]
@@ -180,4 +178,5 @@ class RigettiQCSBackend(BackendV1):
             configuration=self.configuration(),
             before_compile=before_compile or [],
             before_execute=before_execute or [],
+            ensure_native_quil=ensure_native_quil,
         )

@@ -1,6 +1,8 @@
-from qiskit import execute
-from qiskit_rigetti_provider import RigettiQCSProvider, QuilCircuit
 from pyquil import Program
+from pytest_mock import MockerFixture
+from qiskit import execute
+
+from qiskit_rigetti_provider import RigettiQCSProvider, QuilCircuit
 
 
 def test_execute__basic_circuit():
@@ -67,3 +69,28 @@ def test_execute__circuit_with_lifecycle_hooks():
     result = job.result()
 
     assert result.get_counts().keys() == {"1"}
+
+
+def test_execute__ensure_native_quil(mocker: MockerFixture):
+    """Tests recompilation integration"""
+    p = RigettiQCSProvider()
+    backend = p.get_simulator(num_qubits=2, noisy=False)
+    quil_to_native_quil_spy = mocker.spy(backend._qc.compiler, "quil_to_native_quil")
+
+    circuit = QuilCircuit(2, 2)
+    circuit.h(0)
+    circuit.measure([0, 1], [0, 1])
+
+    def pre_execution_hook(quil: Program) -> Program:
+        return Program(
+            "DECLARE ro BIT[1]",
+            "X 0",
+            "MEASURE 0 ro[0]",
+        )
+
+    job = execute(circuit, backend, shots=10, before_execute=pre_execution_hook, ensure_native_quil=True)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"1"}
+    assert quil_to_native_quil_spy.call_count == 2, "compile not performed correct number of times"
+
