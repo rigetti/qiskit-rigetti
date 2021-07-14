@@ -25,6 +25,8 @@ from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
+from .hooks.pre_compilation import PreCompilationHook
+from .hooks.pre_execution import PreExecutionHook
 from .qcs_job import RigettiQCSJob
 
 
@@ -127,7 +129,34 @@ class RigettiQCSBackend(BackendV1):
     def _default_options(cls) -> Options:
         return Options(shots=None)
 
-    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> RigettiQCSJob:
+    def run(
+        self,
+        run_input: Union[QuantumCircuit, List[QuantumCircuit]],
+        *,
+        before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
+        before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
+        **options: Any,
+    ) -> RigettiQCSJob:
+        """Run on the backend.
+
+        This method that will return a :class:`~qiskit_rigetti_provider.RigettiQCSJob` object
+        that runs circuits asynchronously.
+
+        Args:
+            run_input (QuantumCircuit or list): An individual or a
+                list of :class:`~qiskit.circuits.QuantumCircuit` objects to run
+                on the backend.
+            before_compile (PreCompilationHook or list): An individual or a list of functions
+                following the :class:`~qiskit_rigetti_provider.hooks.pre_compilation.PreCompilationHook`
+                signature, used to transform QASM prior to compilation.
+            before_execute (PreExecutionHook or list): An individual or a list of functions
+                following the :class:`~qiskit_rigetti_provider.hooks.pre_execution.PreExecutionHook`
+                signature, used to transform Quil prior to execution.
+            options: Any kwarg options to pass to the backend for running the
+                circuits.
+        Returns:
+            RigettiQCSJob: The job object for the run.
+        """
         if not isinstance(run_input, list):
             run_input = [run_input]
 
@@ -142,12 +171,13 @@ class RigettiQCSBackend(BackendV1):
                 engagement_manager=self._engagement_manager,
             )
 
-        job = RigettiQCSJob(
+        return RigettiQCSJob(
             job_id=str(uuid4()),
             circuits=run_input,
             options=options,
             qc=self._qc,
             backend=self,
             configuration=self.configuration(),
+            before_compile=before_compile or [],
+            before_execute=before_execute or [],
         )
-        return job

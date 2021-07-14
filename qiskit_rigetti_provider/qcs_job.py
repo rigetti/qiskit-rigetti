@@ -31,6 +31,9 @@ from qiskit.qobj import QobjExperimentHeader
 from qiskit.result import Result
 from qiskit.result.models import ExperimentResult, ExperimentResultData
 
+from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
+from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
+
 Response = Union[QVMExecuteResponse, QPUExecuteResponse]
 
 
@@ -41,12 +44,15 @@ class RigettiQCSJob(JobV1):
 
     def __init__(
         self,
+        *,
         job_id: str,
         circuits: List[QuantumCircuit],
         options: Dict[str, Any],
         qc: QuantumComputer,
         backend: Backend,
         configuration: QasmBackendConfiguration,
+        before_compile: Union[PreCompilationHook, List[PreCompilationHook]],
+        before_execute: Union[PreExecutionHook, List[PreExecutionHook]],
     ) -> None:
         """
         Create new job.
@@ -57,6 +63,9 @@ class RigettiQCSJob(JobV1):
         :param qc: quantum computer to run against
         :param backend: backend that created this job
         :param configuration: configuration from parent backend
+        :param before_compile: individual or list of pre-compilation hooks
+        :param before_execute: individual or list of pre-execution hooks
+        :param configuration: list of pre-execution hooks
         """
         super().__init__(backend, job_id)
 
@@ -67,6 +76,15 @@ class RigettiQCSJob(JobV1):
         self._configuration = configuration
         self._result: Optional[Result] = None
         self._responses: List[Response] = []
+
+        if not isinstance(before_compile, list):
+            before_compile = [before_compile]
+        self._before_compile: List[PreCompilationHook] = before_compile
+
+        if not isinstance(before_execute, list):
+            before_execute = [before_execute]
+        self._before_execute: List[PreExecutionHook] = before_execute
+
         self._start()
 
     def submit(self) -> None:
@@ -86,21 +104,18 @@ class RigettiQCSJob(JobV1):
         qasm = circuit.qasm()
 
         # TODO (andrew):
-        # - Support sequences of hooks
         # - Support recompilation when needed
 
-        before_compile = self._options.get("before_compile")
-        if before_compile is not None:
-            qasm = before_compile(qasm)
+        for pre_compile in self._before_compile:
+            qasm = pre_compile(qasm)
 
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        native_program = self._qc.compiler.quil_to_native_quil(program)
+        program = self._qc.compiler.quil_to_native_quil(program)
 
-        before_execute = self._options.get("before_execute")
-        if before_execute is not None:
-            native_program = before_execute(native_program)
+        for before_execute in self._before_execute:
+            program = before_execute(program)
 
-        compiled = self._qc.compiler.native_quil_to_executable(native_program)
+        compiled = self._qc.compiler.native_quil_to_executable(program)
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
         return cast(Response, self._qc.qam.execute(compiled))
