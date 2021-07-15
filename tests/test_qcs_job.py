@@ -38,6 +38,18 @@ def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFix
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
 
+    orig_qasm = "\n".join(
+        [
+            "OPENQASM 2.0;",
+            'include "qelib1.inc";',
+            "qreg q[2];",
+            "creg ro[2];",
+            "h q[0];",
+            "measure q[0] -> ro[0];",
+            "measure q[1] -> ro[1];",
+        ]
+    )
+
     new_qasm = "\n".join(
         [
             "OPENQASM 2.0;",
@@ -50,17 +62,7 @@ def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFix
     )
 
     def before_compile(qasm: str) -> str:
-        assert qasm.rstrip() == "\n".join(
-            [
-                "OPENQASM 2.0;",
-                'include "qelib1.inc";',
-                "qreg q[2];",
-                "creg ro[2];",
-                "h q[0];",
-                "measure q[0] -> ro[0];",
-                "measure q[1] -> ro[1];",
-            ]
-        )
+        assert qasm.rstrip() == orig_qasm
         return new_qasm
 
     make_job(backend, circuit, qc, before_compile=before_compile)
@@ -74,6 +76,18 @@ def test_init__multiple_before_compile_hooks(backend: RigettiQCSBackend, mocker:
     circuit = make_circuit(backend.configuration().num_qubits)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    orig_qasm = "\n".join(
+        [
+            "OPENQASM 2.0;",
+            'include "qelib1.inc";',
+            "qreg q[2];",
+            "creg ro[2];",
+            "h q[0];",
+            "measure q[0] -> ro[0];",
+            "measure q[1] -> ro[1];",
+        ]
+    )
 
     new_qasm_1 = "\n".join(
         [
@@ -100,17 +114,7 @@ def test_init__multiple_before_compile_hooks(backend: RigettiQCSBackend, mocker:
     )
 
     def before_compile_1(qasm: str) -> str:
-        assert qasm.rstrip() == "\n".join(
-            [
-                "OPENQASM 2.0;",
-                'include "qelib1.inc";',
-                "qreg q[2];",
-                "creg ro[2];",
-                "h q[0];",
-                "measure q[0] -> ro[0];",
-                "measure q[1] -> ro[1];",
-            ]
-        )
+        assert qasm.rstrip() == orig_qasm
         return new_qasm_1
 
     def before_compile_2(qasm: str) -> str:
@@ -129,20 +133,22 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
     qc = get_qc(backend.configuration().backend_name)
     native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
 
+    orig_quil = Program(
+        "DECLARE ro BIT[2]",
+        "RZ(pi) 0",
+        "RX(pi/2) 0",
+        "RZ(pi/2) 0",
+        "RX(-pi/2) 0",
+        "MEASURE 1 ro[1]",
+        "MEASURE 0 ro[0]",
+    )
+
     new_quil = Program(
         "DECLARE x BIT[1]",
     )
 
     def before_execute(quil: Program) -> Program:
-        assert quil == Program(
-            "DECLARE ro BIT[2]",
-            "RZ(pi) 0",
-            "RX(pi/2) 0",
-            "RZ(pi/2) 0",
-            "RX(-pi/2) 0",
-            "MEASURE 1 ro[1]",
-            "MEASURE 0 ro[0]",
-        )
+        assert quil == orig_quil
         return new_quil
 
     make_job(backend, circuit, qc, before_execute=before_execute)
@@ -156,6 +162,16 @@ def test_init__multiple_before_execute_hooks(backend: RigettiQCSBackend, mocker:
     qc = get_qc(backend.configuration().backend_name)
     native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
 
+    orig_quil = Program(
+        "DECLARE ro BIT[2]",
+        "RZ(pi) 0",
+        "RX(pi/2) 0",
+        "RZ(pi/2) 0",
+        "RX(-pi/2) 0",
+        "MEASURE 1 ro[1]",
+        "MEASURE 0 ro[0]",
+    )
+
     new_quil_1 = Program(
         "DECLARE x BIT[1]",
     )
@@ -166,15 +182,7 @@ def test_init__multiple_before_execute_hooks(backend: RigettiQCSBackend, mocker:
     )
 
     def before_execute_1(quil: Program) -> Program:
-        assert quil == Program(
-            "DECLARE ro BIT[2]",
-            "RZ(pi) 0",
-            "RX(pi/2) 0",
-            "RZ(pi/2) 0",
-            "RX(-pi/2) 0",
-            "MEASURE 1 ro[1]",
-            "MEASURE 0 ro[0]",
-        )
+        assert quil == orig_quil
         return new_quil_1
 
     def before_execute_2(quil: Program) -> Program:

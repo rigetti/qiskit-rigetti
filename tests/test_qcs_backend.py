@@ -14,16 +14,17 @@
 #    limitations under the License.
 ##############################################################################
 import pytest
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from pytest_mock import MockerFixture
+from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
-from qiskit_rigetti_provider import RigettiQCSProvider, RigettiQCSBackend
+from qiskit_rigetti_provider import RigettiQCSProvider, RigettiQCSBackend, RigettiQCSJob
 
 
 def test_run(backend: RigettiQCSBackend):
     circuit = make_circuit()
 
-    job = backend.run(circuit, shots=10)
+    job = execute(circuit, backend, shots=10)
 
     assert job.backend() is backend
     assert job.status() == JobStatus.RUNNING
@@ -39,7 +40,7 @@ def test_run__multiple_circuits(backend: RigettiQCSBackend):
     circuit1 = make_circuit(num_qubits=2)
     circuit2 = make_circuit(num_qubits=3)
 
-    job = backend.run([circuit1, circuit2], shots=10)
+    job = execute([circuit1, circuit2], backend, shots=10)
 
     assert job.backend() is backend
     result = job.result()
@@ -63,7 +64,7 @@ def test_run__barrier(backend: RigettiQCSBackend):
     qasm_before = circuit.qasm()
 
     with pytest.warns(UserWarning, match="`barrier` has no effect on a RigettiQCSBackend and will be omitted"):
-        job = backend.run(circuit, shots=10)
+        job = execute(circuit, backend, shots=10)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
 
@@ -84,14 +85,14 @@ def test_run__multiple_readout_registers(backend: RigettiQCSBackend):
     circuit.measure([qr[0], qr[1]], [cr[0], cr2[0]])
 
     with pytest.raises(RuntimeError, match="Multiple readout registers are unsupported on QCSBackend; found c, c2"):
-        backend.run(circuit, shots=10)
+        execute(circuit, backend, shots=10)
 
 
 def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
     circuit = make_circuit(readout_name="not_ro")
     qasm_before = circuit.qasm()
 
-    job = backend.run(circuit, shots=10)
+    job = execute(circuit, backend, shots=10)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
 
@@ -102,6 +103,78 @@ def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
     assert result.results[0].header.name == circuit.name
     assert result.results[0].shots == 10
     assert result.get_counts().keys() == {"00"}
+
+
+def test_run__pre_compilation_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    def pre_compilation_hook(qasm: str) -> str:
+        return qasm
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10, before_compile=pre_compilation_hook)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["before_compile"] == pre_compilation_hook
+
+
+def test_run__pre_compilation_hook__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["before_compile"] == []
+
+
+def test_run__pre_execution_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    def pre_execution_hook(qasm: str) -> str:
+        return qasm
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10, before_execute=pre_execution_hook)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["before_execute"] == pre_execution_hook
+
+
+def test_run__pre_execution_hook__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["before_execute"] == []
+
+
+def test_run__ensure_native_quil(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10, ensure_native_quil=True)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["ensure_native_quil"] is True
+
+
+def test_run__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit()
+
+    job_init_spy = mocker.spy(RigettiQCSJob, "__init__")
+    job = execute(circuit, backend, shots=10)
+    result = job.result()
+
+    assert result.get_counts().keys() == {"00"}
+    assert job_init_spy.call_args[1]["ensure_native_quil"] is False
 
 
 @pytest.fixture
