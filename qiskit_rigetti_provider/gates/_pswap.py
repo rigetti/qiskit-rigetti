@@ -13,23 +13,27 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
+__all__ = ["PSwapGate"]
+
 from pyquil.simulation.matrices import PSWAP
 from qiskit.extensions import UnitaryGate
 
 
 class PSwapGate(UnitaryGate):
-    """Class for representing a parametric Swap gate::
+    """
+    Class for representing a parametric Swap gate
 
-    PSWAP(theta) = [[1, 0,              0,              0],
-                    [0, 0,              exp(i * theta), 0],
-                    [0, exp(i * theta), 0,              0],
-                    [0, 0,              0,              1]]
+    ::
+
+        PSWAP(theta) = [[1, 0,              0,              0],
+                        [0, 0,              exp(i * theta), 0],
+                        [0, exp(i * theta), 0,              0],
+                        [0, 0,              0,              1]]
     """
 
     def __init__(self, theta: float):
         """
-        Create new PSwap gate.
-
-        :param theta: phase angle
+        Args:
+            theta: phase angle
         """
         super().__init__(PSWAP(theta), "pswap")

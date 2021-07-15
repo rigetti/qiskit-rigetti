@@ -25,7 +25,7 @@ from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
-from .qcs_job import RigettiQCSJob
+from ._qcs_job import RigettiQCSJob
 
 
 def _remove_barriers(circuit: QuantumCircuit) -> None:
@@ -118,15 +118,14 @@ class RigettiQCSBackend(BackendV1):
         **fields: Any,
     ) -> None:
         """
-        Create a new backend.
-
-        :param execution_timeout: Time limit for execution requests, in seconds.
-        :param compiler_timeout: Time limit for compiler requests, in seconds.
-        :param client_configuration: QCS client configuration.
-        :param engagement_manager: QPU engagement manager.
-        :param backend_configuration: Backend configuration.
-        :param provider: Parent provider.
-        :param fields: kwargs for the values to use to override the default options.
+        Args:
+            execution_timeout: Time limit for execution requests, in seconds.
+            compiler_timeout: Time limit for compiler requests, in seconds.
+            client_configuration: QCS client configuration.
+            engagement_manager: QPU engagement manager.
+            backend_configuration: Backend configuration.
+            provider: Parent provider.
+            fields: kwargs for the values to use to override the default options.
         """
         super().__init__(backend_configuration, provider, **fields)
         self._compiler_timeout = compiler_timeout

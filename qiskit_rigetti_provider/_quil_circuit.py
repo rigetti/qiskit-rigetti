@@ -18,10 +18,10 @@ from typing import Any
 from qiskit import QuantumCircuit
 from qiskit.circuit import InstructionSet
 
-from qiskit_rigetti_provider.gates.can import CanonicalGate
-from qiskit_rigetti_provider.gates.cphase import CPhase00Gate, CPhase01Gate, CPhase10Gate
-from qiskit_rigetti_provider.gates.pswap import PSwapGate
-from qiskit_rigetti_provider.gates.xy import XYGate
+from qiskit_rigetti_provider.gates._can import CanonicalGate
+from qiskit_rigetti_provider.gates._cphase import CPhase00Gate, CPhase01Gate, CPhase10Gate
+from qiskit_rigetti_provider.gates._pswap import PSwapGate
+from qiskit_rigetti_provider.gates._xy import XYGate
 
 
 class QuilCircuit(QuantumCircuit):

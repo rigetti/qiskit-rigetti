@@ -13,59 +13,68 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
+__all__ = ["CPhase00Gate", "CPhase01Gate", "CPhase10Gate"]
+
 from pyquil.simulation.matrices import CPHASE00, CPHASE01, CPHASE10
 from qiskit.extensions import UnitaryGate
 
 
 class CPhase00Gate(UnitaryGate):
-    """Class for representing a CPhase00 gate, a variant of CPhase that affects state ``|00>``::
+    """
+    Class for representing a CPhase00 gate, a variant of CPhase that affects state ``|00>``
 
-    CPHASE00(theta) = [[exp(i*theta), 0, 0, 0],
-                       [0,            1, 0, 0],
-                       [0,            0, 1, 0],
-                       [0,            0, 0, 1]]
+    ::
+
+        CPHASE00(theta) = [[exp(i*theta), 0, 0, 0],
+                           [0,            1, 0, 0],
+                           [0,            0, 1, 0],
+                           [0,            0, 0, 1]]
+
     """
 
     def __init__(self, theta: float):
         """
-        Create new CPhase00 gate.
-
-        :param theta: phase angle
+        Args:
+            theta: phase angle
         """
         super().__init__(CPHASE00(theta), "cphase00")
 
 
 class CPhase01Gate(UnitaryGate):
-    """Class for representing a CPhase01 gate, a variant of CPhase that affects state ``|01>``::
+    """
+    Class for representing a CPhase01 gate, a variant of CPhase that affects state ``|01>``
 
-    CPHASE01(theta) = [[1, 0,            0, 0],
-                       [0, exp(i*theta), 0, 0],
-                       [0, 0,            1, 0],
-                       [0, 0,            0, 1]]
+    ::
+
+        CPHASE01(theta) = [[1, 0,            0, 0],
+                           [0, exp(i*theta), 0, 0],
+                           [0, 0,            1, 0],
+                           [0, 0,            0, 1]]
     """
 
     def __init__(self, theta: float):
         """
-        Create new CPhase01 gate.
-
-        :param theta: phase angle
+        Args:
+            theta: phase angle
         """
         super().__init__(CPHASE01(theta), "cphase01")
 
 
 class CPhase10Gate(UnitaryGate):
-    """Class for representing a CPhase10 gate, a variant of CPhase that affects state ``|10>``::
+    """
+    Class for representing a CPhase10 gate, a variant of CPhase that affects state ``|10>``
 
-    CPHASE01(theta) = [[1, 0, 0,            0],
-                       [0, 1, 0,            0],
-                       [0, 0, exp(i*theta), 0],
-                       [0, 0, 0,            1]]
+    ::
+
+        CPHASE01(theta) = [[1, 0, 0,            0],
+                           [0, 1, 0,            0],
+                           [0, 0, exp(i*theta), 0],
+                           [0, 0, 0,            1]]
     """
 
     def __init__(self, theta: float):
         """
-        Create new CPhase10 gate.
-
-        :param theta: phase angle
+        Args:
+            theta: phase angle
         """
         super().__init__(CPHASE10(theta), "cphase10")

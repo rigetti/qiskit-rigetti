@@ -19,3 +19,11 @@ check-types:
 .PHONY: test
 test:
 	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term tests
+
+.PHONY: docs
+docs:
+	$(MAKE) -C docs html
+
+.PHONY: serve-docs
+serve-docs:
+	$(MAKE) -C docs serve

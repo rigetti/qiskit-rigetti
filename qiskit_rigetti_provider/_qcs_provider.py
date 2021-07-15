@@ -21,7 +21,7 @@ from qcs_api_client.client import build_sync_client, QCSClientConfiguration
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
 
-from .qcs_backend import RigettiQCSBackend
+from ._qcs_backend import RigettiQCSBackend
 
 
 class RigettiQCSProvider(ProviderV1):
@@ -40,10 +40,11 @@ class RigettiQCSProvider(ProviderV1):
         """
         Create new provider.
 
-        :param execution_timeout: Time limit for execution requests, in seconds.
-        :param compiler_timeout: Time limit for compiler requests, in seconds.
-        :param client_configuration: QCS client configuration. If one is not provided, a default will be loaded.
-        :param engagement_manager: QPU engagement manager. If one is not provided, a default one will be created.
+        Args:
+            execution_timeout: Time limit for execution requests, in seconds.
+            compiler_timeout: Time limit for compiler requests, in seconds.
+            client_configuration: QCS client configuration. If one is not provided, a default will be loaded.
+            engagement_manager: QPU engagement manager. If one is not provided, a default one will be created.
         """
         super().__init__()
         self._backends: List[RigettiQCSBackend] = []
@@ -77,9 +78,11 @@ class RigettiQCSProvider(ProviderV1):
         """
         Get a simulator (QVM).
 
-        :param num_qubits: number of qubits the simulator should have
-        :param noisy: whether or not the simulator should simulate noise
-        :return: a backend representing the simulator
+        Args:
+            num_qubits: number of qubits the simulator should have
+            noisy: whether or not the simulator should simulate noise
+        Returns:
+            A backend representing the simulator
         """
         qvm_url = self._client_configuration.profile.applications.pyquil.qvm_url
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")

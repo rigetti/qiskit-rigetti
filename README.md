@@ -178,3 +178,9 @@ You can reformat all code according to this project's style configuration with:
 ```bash
 make format
 ```
+
+To build documentation and start a webserver locally:
+
+```bash
+make docs && make serve-docs
+```

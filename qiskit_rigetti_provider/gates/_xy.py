@@ -13,25 +13,29 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
+__all__ = ["XYGate"]
+
 from pyquil.simulation.matrices import XY
 from qiskit.extensions import UnitaryGate
 
 
 class XYGate(UnitaryGate):
-    """Class for representing an XY gate (parametric iSwap gate)::
+    """
+    Class for representing an XY gate (parametric iSwap gate)
 
-    XY(theta) = [[1, 0,                0,                0],
-                 [0, cos(theta/2),     i * sin(theta/2), 0],
-                 [0, i * sin(theta/2), cos(theta/2),     0],
-                 [0, 0,                0,                1]]
+    ::
+
+        XY(theta) = [[1, 0,                0,                0],
+                     [0, cos(theta/2),     i * sin(theta/2), 0],
+                     [0, i * sin(theta/2), cos(theta/2),     0],
+                     [0, 0,                0,                1]]
 
     See https://arxiv.org/pdf/1912.04424.pdf for technical details.
     """
 
     def __init__(self, theta: float):
         """
-        Create new XY gate.
-
-        :param theta: phase angle
+        Args:
+            theta: phase angle
         """
         super().__init__(XY(theta), "xy")
