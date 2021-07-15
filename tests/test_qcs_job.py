@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Optional, Any, Union, List
+from typing import Optional, Any
 
 import pytest
 from pyquil import get_qc, Program
@@ -23,8 +23,7 @@ from qiskit import QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
 from qiskit_rigetti_provider import RigettiQCSJob, RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
-from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
-from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook, enable_active_reset
+from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
 
 
 def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):

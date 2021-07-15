@@ -14,11 +14,10 @@
 #    limitations under the License.
 ##############################################################################
 import pytest
-from pytest_mock import MockerFixture
 from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
-from qiskit_rigetti_provider import RigettiQCSProvider, RigettiQCSBackend, RigettiQCSJob
+from qiskit_rigetti_provider import RigettiQCSProvider, RigettiQCSBackend
 
 
 def test_run(backend: RigettiQCSBackend):

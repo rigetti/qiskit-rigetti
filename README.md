@@ -117,6 +117,9 @@ job = execute(circuit, backend, shots=10, before_execute=[custom_hook_1, custom_
 > passed to `execute()` or `RigettiQCSBackend.run()` to recompile the final Quil program to native Quil prior to
 > execution. If no pre-execution hooks were supplied, this setting is ignored. If this setting is omitted, a value of
 > `False` is assumed.
+> 
+> _Example_: Adding the Quil instruction `H 0` would result in an error if `ensure_native_quil=False` and the QPU does
+> not natively implement Hadamard gates.
 
 #### Built-in Hooks
 
