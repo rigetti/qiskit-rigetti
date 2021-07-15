@@ -31,9 +31,6 @@ from qiskit.qobj import QobjExperimentHeader
 from qiskit.result import Result
 from qiskit.result.models import ExperimentResult, ExperimentResultData
 
-from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
-from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
-
 Response = Union[QVMExecuteResponse, QPUExecuteResponse]
 
 
@@ -51,9 +48,6 @@ class RigettiQCSJob(JobV1):
         qc: QuantumComputer,
         backend: Backend,
         configuration: QasmBackendConfiguration,
-        before_compile: List[PreCompilationHook],
-        before_execute: List[PreExecutionHook],
-        ensure_native_quil: bool,
     ) -> None:
         """
         Create new job.
@@ -65,9 +59,6 @@ class RigettiQCSJob(JobV1):
         :param backend: backend that created this job
         :param configuration: configuration from parent backend
         :param configuration: list of pre-execution hooks
-        :param before_compile: list of pre-compilation hooks
-        :param before_execute: list of pre-execution hooks
-        :param ensure_native_quil: whether or not to recompile after pre-execution hooks
         """
         super().__init__(backend, job_id)
 
@@ -78,9 +69,6 @@ class RigettiQCSJob(JobV1):
         self._configuration = configuration
         self._result: Optional[Result] = None
         self._responses: List[Response] = []
-        self._before_compile: List[PreCompilationHook] = before_compile
-        self._before_execute: List[PreExecutionHook] = before_execute
-        self._ensure_native_quil = ensure_native_quil
 
         self._start()
 
@@ -100,16 +88,18 @@ class RigettiQCSJob(JobV1):
         shots = self._options["shots"]
         qasm = circuit.qasm()
 
-        for pre_compile in self._before_compile:
-            qasm = pre_compile(qasm)
+        before_compile = self._options.get("before_compile", [])
+        for fn in before_compile:
+            qasm = fn(qasm)
 
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
         program = self._qc.compiler.quil_to_native_quil(program)
 
-        for before_execute in self._before_execute:
-            program = before_execute(program)
+        before_execute = self._options.get("before_execute", [])
+        for fn in before_execute:
+            program = fn(program)
 
-        if self._ensure_native_quil and len(self._before_execute) > 0:
+        if self._options.get("ensure_native_quil") and len(before_execute) > 0:
             program = self._qc.compiler.quil_to_native_quil(program)
 
         executable = self._qc.compiler.native_quil_to_executable(program)

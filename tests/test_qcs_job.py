@@ -61,11 +61,11 @@ def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFix
         ]
     )
 
-    def before_compile(qasm: str) -> str:
+    def before_compile_hook(qasm: str) -> str:
         assert qasm.rstrip() == orig_qasm
         return new_qasm
 
-    make_job(backend, circuit, qc, before_compile=before_compile)
+    make_job(backend, circuit, qc, before_compile=[before_compile_hook])
 
     program: Program = quil_to_native_quil_spy.call_args[0][0]
     qasm = program.out(calibrations=False).rstrip()
@@ -91,11 +91,11 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
         "DECLARE x BIT[1]",
     )
 
-    def before_execute(quil: Program) -> Program:
+    def before_execute_hook(quil: Program) -> Program:
         assert quil == orig_quil
         return new_quil
 
-    make_job(backend, circuit, qc, before_execute=before_execute)
+    make_job(backend, circuit, qc, before_execute=[before_execute_hook])
 
     program: Program = native_quil_to_executable_spy.call_args[0][0]
     assert program == new_quil
@@ -106,7 +106,7 @@ def test_init__ensure_native_quil__true(backend: RigettiQCSBackend, mocker: Mock
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
 
-    make_job(backend, circuit, qc, before_execute=enable_active_reset, ensure_native_quil=True)
+    make_job(backend, circuit, qc, before_execute=[enable_active_reset], ensure_native_quil=True)
 
     assert quil_to_native_quil_spy.call_count == 2, "compile not performed correct number of times"
 
@@ -127,6 +127,16 @@ def test_init__ensure_native_quil__false(backend: RigettiQCSBackend, mocker: Moc
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
 
     make_job(backend, circuit, qc, ensure_native_quil=False)
+
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc)
 
     assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
 
@@ -187,9 +197,6 @@ def make_job(
     backend,
     circuit,
     qc: Optional[QuantumComputer] = None,
-    before_compile: Optional[PreCompilationHook] = None,
-    before_execute: Optional[PreExecutionHook] = None,
-    ensure_native_quil: bool = False,
     **options: Any,
 ):
     qc = qc or get_qc(backend.configuration().backend_name)
@@ -200,9 +207,6 @@ def make_job(
         qc=qc,
         backend=backend,
         configuration=backend.configuration(),
-        before_compile=[before_compile] if before_compile else [],
-        before_execute=[before_execute] if before_execute else [],
-        ensure_native_quil=ensure_native_quil,
     )
 
     return job

@@ -68,24 +68,28 @@ For advanced QASM and Quil manipulation, `before_compile` and `before_execute` k
 
 #### Pre-compilation Hooks
 
-The `before_compile` hook will apply just before compilation from QASM to native Quil.
+Any `before_compile` hooks will apply, in order, just before compilation from QASM to native Quil.
 For example:
 
 ```python
 ...
 
-def custom_hook(qasm: str) -> str:
+def custom_hook_1(qasm: str) -> str:
    new_qasm = ...
    return new_qasm
 
-job = execute(circuit, backend, shots=10, before_compile=custom_hook)
+def custom_hook_2(qasm: str) -> str:
+   new_qasm = ...
+   return new_qasm
+
+job = execute(circuit, backend, shots=10, before_compile=[custom_hook_1, custom_hook_2])
 
 ...
 ```
 
 #### Pre-execution Hooks
 
-The `before_execute` hook will apply just before execution (after translation from QASM to native Quil).
+Any `before_execute` hooks will apply, in order, just before execution (after translation from QASM to native Quil).
 For example:
 
 ```python
@@ -93,11 +97,15 @@ from pyquil import Program
 
 ...
 
-def custom_hook(quil: Program) -> Program:
+def custom_hook_1(quil: Program) -> Program:
    new_quil = ...
    return new_quil
 
-job = execute(circuit, backend, shots=10, before_execute=custom_hook)
+def custom_hook_2(quil: Program) -> Program:
+   new_quil = ...
+   return new_quil
+
+job = execute(circuit, backend, shots=10, before_execute=[custom_hook_1, custom_hook_2])
 
 ...
 ```
@@ -124,7 +132,7 @@ from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
 
 ...
 
-job = execute(circuit, backend, shots=10, before_compile=set_rewiring("NAIVE"))
+job = execute(circuit, backend, shots=10, before_compile=[set_rewiring("NAIVE")])
 
 ...
 ```
@@ -141,26 +149,7 @@ from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
 
 ...
 
-job = execute(circuit, backend, shots=10, before_execute=enable_active_reset)
-
-...
-```
-
-#### Multiple Hooks
-
-To use multiple hooks, simply supply a list of hooks for either `before_compile` or `before_execute`, and the
-provided hooks will be executed in order. For example:
-
-```python
-from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
-
-...
-
-def custom_hook(quil: Program) -> Program:
-   new_quil = ...
-   return new_quil
-
-job = execute(circuit, backend, shots=10, before_execute=[enable_active_reset, custom_hook])
+job = execute(circuit, backend, shots=10, before_execute=[enable_active_reset])
 
 ...
 ```

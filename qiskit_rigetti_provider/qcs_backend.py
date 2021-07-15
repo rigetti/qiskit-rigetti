@@ -25,8 +25,6 @@ from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
-from .hooks.pre_compilation import PreCompilationHook
-from .hooks.pre_execution import PreExecutionHook
 from .qcs_job import RigettiQCSJob
 
 
@@ -111,8 +109,8 @@ class RigettiQCSBackend(BackendV1):
     def __init__(
         self,
         *,
-        compiler_timeout: float = 5.0,
-        execution_timeout: float = 5.0,
+        compiler_timeout: float,
+        execution_timeout: float,
         client_configuration: QCSClientConfiguration,
         engagement_manager: EngagementManager,
         backend_configuration: QasmBackendConfiguration,
@@ -144,41 +142,10 @@ class RigettiQCSBackend(BackendV1):
     def run(
         self,
         run_input: Union[QuantumCircuit, List[QuantumCircuit]],
-        *,
-        before_compile: Optional[Union[PreCompilationHook, List[PreCompilationHook]]] = None,
-        before_execute: Optional[Union[PreExecutionHook, List[PreExecutionHook]]] = None,
-        ensure_native_quil: bool = False,
         **options: Any,
     ) -> RigettiQCSJob:
-        """Run on the backend.
-
-        This method that will return a :class:`~qiskit_rigetti_provider.RigettiQCSJob` object that runs circuits
-        asynchronously.
-
-        :param run_input: An individual or a list of :class:`~qiskit.circuits.QuantumCircuit` objects to run on the
-            backend.
-        :param before_compile: An individual or a list of functions following the
-            :class:`~qiskit_rigetti_provider.hooks.pre_compilation.PreCompilationHook` signature, used to transform QASM
-             prior to compilation.
-        :param before_execute: An individual or a list of functions following the
-            :class:`~qiskit_rigetti_provider.hooks.pre_execution.PreExecutionHook` signature, used to transform Quil
-            prior to execution.
-        :param ensure_native_quil: Whether or not to recompile after pre-execution hooks.
-        :param options: Any kwarg options to pass to the backend for running the circuits.
-        :return: The job object for the run.
-        """
         if not isinstance(run_input, list):
             run_input = [run_input]
-
-        if before_compile is None:
-            before_compile = []
-        elif not isinstance(before_compile, list):
-            before_compile = [before_compile]
-
-        if before_execute is None:
-            before_execute = []
-        elif not isinstance(before_execute, list):
-            before_execute = [before_execute]
 
         run_input = [_prepare_circuit(circuit) for circuit in run_input]
 
@@ -198,7 +165,4 @@ class RigettiQCSBackend(BackendV1):
             qc=self._qc,
             backend=self,
             configuration=self.configuration(),
-            before_compile=before_compile,
-            before_execute=before_execute,
-            ensure_native_quil=ensure_native_quil,
         )
