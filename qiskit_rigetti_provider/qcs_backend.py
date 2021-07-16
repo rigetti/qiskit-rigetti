@@ -54,7 +54,7 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     num_readouts = len(readout_names)
 
     if num_readouts == 0:
-        return
+        raise RuntimeError("Circuit has no measurements")
 
     if num_readouts > 1:
         readout_names.sort()
