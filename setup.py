@@ -14,7 +14,7 @@ readme = ""
 setup(
     long_description=readme,
     name="qiskit-rigetti-provider",
-    version="0.2.0",
+    version="0.2.1",
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
     author="Rigetti Computing",
@@ -24,7 +24,7 @@ setup(
     install_requires=[
         'importlib-metadata; python_version < "3.8"',
         "numpy==1.*,>=1.20.1",
-        "pyquil==3.*,>=3.0.0.rc21",
+        "pyquil==3.*,>=3.0.0",
         "qiskit==0.*,>=0.27.0",
     ],
     extras_require={
