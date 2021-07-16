@@ -14,11 +14,11 @@ readme = ""
 setup(
     long_description=readme,
     name="qiskit-rigetti-provider",
-    version="0.1.1",
+    version="0.2.0",
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
     author="Rigetti Computing",
-    packages=["qiskit_rigetti_provider", "qiskit_rigetti_provider.gates"],
+    packages=["qiskit_rigetti_provider", "qiskit_rigetti_provider.gates", "qiskit_rigetti_provider.hooks"],
     package_dir={"": "."},
     package_data={"qiskit_rigetti_provider": ["*.typed"]},
     install_requires=[

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-rigetti-provider"
-version = "0.1.1"
+version = "0.2.0"
 description = "Provider for running Qiskit circuits on Rigetti QPUs and simulators."
 authors = ["Rigetti Computing"]
 packages = [
