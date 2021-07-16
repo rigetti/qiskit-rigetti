@@ -26,6 +26,7 @@ Sphinx = "^4.1.1"
 sphinx-autoapi = "^1.8.1"
 furo = "^2021.7.5-beta.38"
 myst-parser = "^0.15.1"
+sphinx-autobuild = "^2021.3.14"
 
 [tool.black]
 line-length = 120

@@ -13,7 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-__all__ = ["CPhase00Gate", "CPhase01Gate", "CPhase10Gate"]
+__all__ = [
+    "CPhase00Gate",
+    "CPhase01Gate",
+    "CPhase10Gate",
+]
 
 from pyquil.simulation.matrices import CPHASE00, CPHASE01, CPHASE10
 from qiskit.extensions import UnitaryGate
@@ -35,7 +39,7 @@ class CPhase00Gate(UnitaryGate):
     def __init__(self, theta: float):
         """
         Args:
-            theta: phase angle
+            theta: Phase angle
         """
         super().__init__(CPHASE00(theta), "cphase00")
 
@@ -55,7 +59,7 @@ class CPhase01Gate(UnitaryGate):
     def __init__(self, theta: float):
         """
         Args:
-            theta: phase angle
+            theta: Phase angle
         """
         super().__init__(CPHASE01(theta), "cphase01")
 
@@ -75,6 +79,6 @@ class CPhase10Gate(UnitaryGate):
     def __init__(self, theta: float):
         """
         Args:
-            theta: phase angle
+            theta: Phase angle
         """
         super().__init__(CPHASE10(theta), "cphase10")

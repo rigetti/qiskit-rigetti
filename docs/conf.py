@@ -2,7 +2,7 @@
 
 project = "qiskit-rigetti-provider"
 copyright = "2021, Rigetti Computing"
-author = "Andrew Meyer"
+author = "Rigetti Computing"
 
 # The full version, including alpha/beta/rc tags
 from qiskit_rigetti_provider import __version__
@@ -12,7 +12,7 @@ release = __version__
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["autoapi.extension", "sphinx.ext.napoleon", "myst_parser"]
+extensions = ["sphinx.ext.autodoc", "autoapi.extension", "sphinx.ext.napoleon", "myst_parser"]
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -32,6 +32,7 @@ autoapi_options = [
     "special-members",
     "imported-members",
 ]
+autoapi_generate_api_docs = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -44,7 +45,15 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = "furo"
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#00b5ad",
+        "color-problematic": "#66d3ce",
+        "color-brand-content": "#3D47D9 ",
+        "color-admonition-background": "#0d0d36",
+    },
+    "dark_css_variables": {
+        "color-brand-content": "#8b91e8",
+    },
+}

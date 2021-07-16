@@ -24,6 +24,6 @@ test:
 docs:
 	$(MAKE) -C docs html
 
-.PHONY: serve-docs
-serve-docs:
-	$(MAKE) -C docs serve
+.PHONY: watch-docs
+watch-docs:
+	sphinx-autobuild docs docs/_build/html

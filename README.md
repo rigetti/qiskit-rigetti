@@ -182,5 +182,5 @@ make format
 To build documentation and start a webserver locally:
 
 ```bash
-make docs && make serve-docs
+make watch-docs
 ```

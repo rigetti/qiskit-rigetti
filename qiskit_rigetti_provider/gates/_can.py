@@ -35,9 +35,9 @@ class CanonicalGate(UnitaryGate):
     def __init__(self, alpha: float, beta: float, gamma: float):
         """
         Args:
-            alpha: x-axis phase angle
-            beta: y-axis phase angle
-            gamma: z-axis phase angle
+            alpha: X-axis phase angle
+            beta: Y-axis phase angle
+            gamma: Z-axis phase angle
         """
         # fmt: off
         super().__init__(

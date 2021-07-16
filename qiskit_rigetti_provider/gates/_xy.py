@@ -36,6 +36,6 @@ class XYGate(UnitaryGate):
     def __init__(self, theta: float):
         """
         Args:
-            theta: phase angle
+            theta: Phase angle
         """
         super().__init__(XY(theta), "xy")

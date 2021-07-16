@@ -3,7 +3,8 @@
 
 ```{toctree}
    :maxdepth: 2
-   :caption: Contents
+   :caption: API Reference
    
-autoapi/index
+api/index.rst
+api/subpackages/index.rst
 ```

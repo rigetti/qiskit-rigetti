@@ -125,7 +125,7 @@ class RigettiQCSBackend(BackendV1):
             engagement_manager: QPU engagement manager.
             backend_configuration: Backend configuration.
             provider: Parent provider.
-            fields: kwargs for the values to use to override the default options.
+            fields: Keyword arguments for the values to use to override the default options.
         """
         super().__init__(backend_configuration, provider, **fields)
         self._compiler_timeout = compiler_timeout
@@ -143,6 +143,16 @@ class RigettiQCSBackend(BackendV1):
         run_input: Union[QuantumCircuit, List[QuantumCircuit]],
         **options: Any,
     ) -> RigettiQCSJob:
+        """
+        Run the quantum circuit(s) using this backend.
+
+        Args:
+            run_input: Either a single :class:`QuantumCircuit` to run or a list of them to run in parallel.
+            **options: Execution options to forward to :class:`RigettiQCSJob`.
+
+        Returns:
+            RigettiQCSJob: The job that has been started. Wait for it by calling :func:`RigettiQCSJob.result`
+        """
         if not isinstance(run_input, list):
             run_input = [run_input]
 
