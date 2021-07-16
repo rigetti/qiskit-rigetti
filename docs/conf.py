@@ -51,7 +51,6 @@ html_theme_options = {
         "color-brand-primary": "#00b5ad",
         "color-problematic": "#66d3ce",
         "color-brand-content": "#3D47D9 ",
-        "color-admonition-background": "#0d0d36",
     },
     "dark_css_variables": {
         "color-brand-content": "#8b91e8",

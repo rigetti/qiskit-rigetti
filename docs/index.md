@@ -1,4 +1,12 @@
+# Qiskit Rigetti Provider
+
+```{admonition} Note
+This documentation supports Light ☀️ and dark 🌙 modes and will automatically adjust based on your browser's settings.
+```
+
 ```{include} ../README.md
+    :start-after: Qiskit Rigetti Provider
+    :end-before: Development
 ```
 
 ```{toctree}

@@ -6,12 +6,27 @@ PreCompilationHook = Callable[[str], str]
 
 def set_rewiring(rewiring: str) -> PreCompilationHook:
     """
-    Set compiler directive for rewiring.
+    Create a hook which will apply rewiring before compilation.
 
     See: https://pyquil-docs.rigetti.com/en/stable/compiler.html#initial-rewiring for more information.
 
-    :param rewiring: Rewiring directive to apply.
-    :return A QASM 2.0 string including the rewiring directive.
+    Args:
+        rewiring: Rewiring directive to apply.
+
+    Returns:
+        PreCompilationHook: A hook to apply rewiring.
+
+    Examples:
+        Applying rewiring to a program::
+
+            >>> from qiskit import execute
+            >>> from qiskit_rigetti_provider import RigettiQCSProvider, QuilCircuit
+            >>> from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
+
+            >>> p = RigettiQCSProvider()
+            >>> backend = p.get_simulator(num_qubits=2, noisy=True)
+            >>> circuit = QuilCircuit(2, 2)
+            >>> job = execute(circuit, backend, shots=10, before_compile=[set_rewiring("NAIVE")])
     """
 
     def fn(qasm: str) -> str:
