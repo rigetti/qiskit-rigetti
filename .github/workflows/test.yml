@@ -69,3 +69,24 @@ jobs:
           docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S -P"
           docker run --rm -itd -p 5000:5000 rigetti/qvm -S
           poetry run make test
+
+  docs-smoke-test:
+    name: Docs Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Build Docs
+        env:
+          SPHINXOPTS: "-W"
+        run: |
+          sudo apt update
+          . scripts/ci_install_deps
+          poetry run make docs
