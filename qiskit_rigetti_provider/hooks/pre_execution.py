@@ -1,13 +1,13 @@
-from typing import Callable, Dict, Any
+from typing import Callable
 
 from pyquil import Program
 from pyquil.gates import RESET
 
-PreExecutionHook = Callable[[Program, Dict[str, Any]], Program]
+PreExecutionHook = Callable[[Program], Program]
 """Represents a function that can transform a Quil program just before execution."""
 
 
-def enable_active_reset(quil: Program, **kwargs: Any) -> Program:
+def enable_active_reset(quil: Program) -> Program:
     """
     Enable active reset for all qubits.
 

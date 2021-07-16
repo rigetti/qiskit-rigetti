@@ -31,6 +31,9 @@ from qiskit.qobj import QobjExperimentHeader
 from qiskit.result import Result
 from qiskit.result.models import ExperimentResult, ExperimentResultData
 
+from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
+from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
+
 Response = Union[QVMExecuteResponse, QPUExecuteResponse]
 
 
@@ -88,14 +91,14 @@ class RigettiQCSJob(JobV1):
         shots = self._options["shots"]
         qasm = circuit.qasm()
 
-        before_compile = self._options.get("before_compile", [])
+        before_compile: List[PreCompilationHook] = self._options.get("before_compile", [])
         for fn in before_compile:
             qasm = fn(qasm)
 
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
         program = self._qc.compiler.quil_to_native_quil(program)
 
-        before_execute = self._options.get("before_execute", [])
+        before_execute: List[PreExecutionHook] = self._options.get("before_execute", [])
         for fn in before_execute:
             program = fn(program)
 

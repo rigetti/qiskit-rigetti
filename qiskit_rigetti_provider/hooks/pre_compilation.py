@@ -1,6 +1,6 @@
-from typing import Callable, Any, Dict
+from typing import Callable
 
-PreCompilationHook = Callable[[str, Dict[str, Any]], str]
+PreCompilationHook = Callable[[str], str]
 """Represents a function that can transform a QASM program string just before compilation."""
 
 
@@ -14,7 +14,7 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
     :return A QASM 2.0 string including the rewiring directive.
     """
 
-    def fn(qasm: str, **kwargs: Any) -> str:
+    def fn(qasm: str) -> str:
         return qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
 
-    return fn  # type: ignore
+    return fn
