@@ -32,8 +32,8 @@ class RigettiQCSProvider(ProviderV1):
     def __init__(
         self,
         *,
-        compiler_timeout: float = 5.0,
-        execution_timeout: float = 5.0,
+        compiler_timeout: float = 10.0,
+        execution_timeout: float = 10.0,
         client_configuration: Optional[QCSClientConfiguration] = None,
         engagement_manager: Optional[EngagementManager] = None,
     ) -> None:

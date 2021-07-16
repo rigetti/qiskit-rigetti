@@ -31,16 +31,6 @@ class QuilCircuit(QuantumCircuit):
     https://github.com/rigetti/quilc/blob/master/src/quil/stdgates.quil
     """
 
-    def set_rewiring(self, directive: str) -> None:
-        """
-        Set compiler directive for rewiring.
-
-        See: https://pyquil-docs.rigetti.com/en/stable/compiler.html#initial-rewiring for more information.
-        """
-        current = self.metadata or {}  # type: ignore
-        rewiring = {"rewiring": directive}
-        self.metadata = {**current, **rewiring}
-
     def xy(self, theta: float, qubit1: Any, qubit2: Any) -> InstructionSet:
         """Apply :class:`qiskit_rigetti_provider.gates.xy.XYGate`."""
         return self.append(XYGate(theta), [qubit1, qubit2], [])

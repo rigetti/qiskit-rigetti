@@ -23,13 +23,6 @@ from qiskit_rigetti_provider.gates.xy import XYGate
 from qiskit_rigetti_provider.quil_circuit import QuilCircuit
 
 
-def test_set_rewiring():
-    circuit = QuilCircuit()
-    circuit.set_rewiring("NAIVE")
-
-    assert circuit.metadata["rewiring"] == "NAIVE"
-
-
 def test_xy():
     circuit = QuilCircuit(2, 2)
 

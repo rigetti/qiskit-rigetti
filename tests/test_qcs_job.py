@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Optional
+from typing import Optional, Any
 
 import pytest
 from pyquil import get_qc, Program
@@ -23,6 +23,7 @@ from qiskit import QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
 from qiskit_rigetti_provider import RigettiQCSJob, RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
+from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
 
 
 def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
@@ -31,17 +32,112 @@ def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
         make_job(backend, circuit)
 
 
-def test_init__start_circuit_with_rewiring(backend: RigettiQCSBackend, mocker: MockerFixture):
+def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(backend.configuration().num_qubits)
-    circuit.set_rewiring("NAIVE")
     qc = get_qc(backend.configuration().backend_name)
-    qc_compile = mocker.spy(qc, "compile")
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    orig_qasm = "\n".join(
+        [
+            "OPENQASM 2.0;",
+            'include "qelib1.inc";',
+            "qreg q[2];",
+            "creg ro[2];",
+            "h q[0];",
+            "measure q[0] -> ro[0];",
+            "measure q[1] -> ro[1];",
+        ]
+    )
+
+    new_qasm = "\n".join(
+        [
+            "OPENQASM 2.0;",
+            'include "qelib1.inc";',
+            "qreg q[2];",
+            "creg ro[2];",
+            "measure q[0] -> ro[0];",
+            "measure q[1] -> ro[1];",
+        ]
+    )
+
+    def before_compile_hook(qasm: str) -> str:
+        assert qasm.rstrip() == orig_qasm
+        return new_qasm
+
+    make_job(backend, circuit, qc, before_compile=[before_compile_hook])
+
+    program: Program = quil_to_native_quil_spy.call_args[0][0]
+    qasm = program.out(calibrations=False).rstrip()
+    assert qasm == new_qasm
+
+
+def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    native_quil_to_executable_spy = mocker.spy(qc.compiler, "native_quil_to_executable")
+
+    orig_quil = Program(
+        "DECLARE ro BIT[2]",
+        "RZ(pi) 0",
+        "RX(pi/2) 0",
+        "RZ(pi/2) 0",
+        "RX(-pi/2) 0",
+        "MEASURE 1 ro[1]",
+        "MEASURE 0 ro[0]",
+    )
+
+    new_quil = Program(
+        "DECLARE x BIT[1]",
+    )
+
+    def before_execute_hook(quil: Program) -> Program:
+        assert quil == orig_quil
+        return new_quil
+
+    make_job(backend, circuit, qc, before_execute=[before_execute_hook])
+
+    program: Program = native_quil_to_executable_spy.call_args[0][0]
+    assert program == new_quil
+
+
+def test_init__ensure_native_quil__true(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, before_execute=[enable_active_reset], ensure_native_quil=True)
+
+    assert quil_to_native_quil_spy.call_count == 2, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__ignored_if_no_pre_execution_hooks(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, ensure_native_quil=True)
+
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__false(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+
+    make_job(backend, circuit, qc, ensure_native_quil=False)
+
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+
+
+def test_init__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
+    circuit = make_circuit(backend.configuration().num_qubits)
+    qc = get_qc(backend.configuration().backend_name)
+    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
 
     make_job(backend, circuit, qc)
 
-    program: Program = qc_compile.call_args[0][0]
-    qasm = program.out(calibrations=False)
-    assert qasm.startswith('OPENQASM 2.0;\n#pragma INITIAL_REWIRING "NAIVE"')
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
 
 
 def test_result(job: RigettiQCSJob):
@@ -96,12 +192,17 @@ def make_circuit(num_qubits) -> QuilCircuit:
     return circuit
 
 
-def make_job(backend, circuit, qc: Optional[QuantumComputer] = None):
+def make_job(
+    backend,
+    circuit,
+    qc: Optional[QuantumComputer] = None,
+    **options: Any,
+):
     qc = qc or get_qc(backend.configuration().backend_name)
     job = RigettiQCSJob(
         job_id="some_job",
         circuits=[circuit],
-        options={"shots": 1000},
+        options={**{"shots": 1000}, **options},
         qc=qc,
         backend=backend,
         configuration=backend.configuration(),

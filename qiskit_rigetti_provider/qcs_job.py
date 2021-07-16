@@ -31,6 +31,9 @@ from qiskit.qobj import QobjExperimentHeader
 from qiskit.result import Result
 from qiskit.result.models import ExperimentResult, ExperimentResultData
 
+from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
+from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
+
 Response = Union[QVMExecuteResponse, QPUExecuteResponse]
 
 
@@ -41,6 +44,7 @@ class RigettiQCSJob(JobV1):
 
     def __init__(
         self,
+        *,
         job_id: str,
         circuits: List[QuantumCircuit],
         options: Dict[str, Any],
@@ -57,6 +61,7 @@ class RigettiQCSJob(JobV1):
         :param qc: quantum computer to run against
         :param backend: backend that created this job
         :param configuration: configuration from parent backend
+        :param configuration: list of pre-execution hooks
         """
         super().__init__(backend, job_id)
 
@@ -67,6 +72,7 @@ class RigettiQCSJob(JobV1):
         self._configuration = configuration
         self._result: Optional[Result] = None
         self._responses: List[Response] = []
+
         self._start()
 
     def submit(self) -> None:
@@ -84,14 +90,25 @@ class RigettiQCSJob(JobV1):
     def _start_circuit(self, circuit: QuantumCircuit) -> Response:
         shots = self._options["shots"]
         qasm = circuit.qasm()
-        rewiring = (circuit.metadata or {}).get("rewiring")
-        if rewiring:
-            qasm = qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
+
+        before_compile: List[PreCompilationHook] = self._options.get("before_compile", [])
+        for fn in before_compile:
+            qasm = fn(qasm)
+
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        compiled = self._qc.compile(program, protoquil=True)
+        program = self._qc.compiler.quil_to_native_quil(program)
+
+        before_execute: List[PreExecutionHook] = self._options.get("before_execute", [])
+        for fn in before_execute:
+            program = fn(program)
+
+        if self._options.get("ensure_native_quil") and len(before_execute) > 0:
+            program = self._qc.compiler.quil_to_native_quil(program)
+
+        executable = self._qc.compiler.native_quil_to_executable(program)
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
-        return cast(Response, self._qc.qam.execute(compiled))
+        return cast(Response, self._qc.qam.execute(executable))
 
     def result(self) -> Result:
         """

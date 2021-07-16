@@ -21,7 +21,7 @@ from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
 from qcs_api_client.client import QCSClientConfiguration
 from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Barrier, Measure, Clbit
+from qiskit.circuit import Barrier, Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
@@ -44,36 +44,51 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     Errors if measuring into more than one readout. If only measuring one, ensures its name is 'ro'. Mutates the input
     circuit.
     """
-    measures = [d for d in circuit.data if isinstance(d[0], Measure)]
-    readout_names = list({clbit.register.name for m in measures for clbit in m[2]})
 
-    if len(readout_names) > 1:
+    # cache register locations for each bit in circuit
+    bit_info = {bit: {"reg": reg, "idx": i} for reg in circuit.cregs for i, bit in enumerate(reg)}
+
+    # NOTE: each measure is a tuple of the form (measure, qubits, classical bits)
+    measures = [d for d in circuit.data if isinstance(d[0], Measure)]
+    readout_names = list({bit_info[clbit]["reg"].name for m in measures for clbit in m[2]})
+    num_readouts = len(readout_names)
+
+    if num_readouts == 0:
+        raise RuntimeError("Circuit has no measurements")
+
+    if num_readouts > 1:
         readout_names.sort()
         raise RuntimeError(
             f"Multiple readout registers are unsupported on QCSBackend; found {', '.join(readout_names)}"
         )
-    elif len(readout_names) == 1:
-        name = readout_names[0]
-        if name != "ro":
-            # Rename register to "ro"
-            for i, reg in enumerate(circuit.cregs):
-                if reg.name == name:
-                    circuit.cregs[i] = ClassicalRegister(size=reg.size, name="ro")
 
-            # Rename register references to "ro"
-            for m in measures:
-                for i, clbit in enumerate(m[2]):
-                    if clbit.register.name == name:
-                        m[2][i] = Clbit(
-                            register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                            index=clbit.index,
-                        )
-            for i, clbit in enumerate(circuit.clbits):
-                if clbit.register.name == name:
-                    circuit.clbits[i] = Clbit(
-                        register=ClassicalRegister(size=clbit.register.size, name="ro"),
-                        index=clbit.index,
-                    )
+    orig_readout_name = readout_names[0]
+    if orig_readout_name == "ro":
+        return
+
+    for i, reg in enumerate(circuit.cregs):
+        if reg.name != orig_readout_name:
+            continue
+
+        # rename register to "ro"
+        ro_reg = ClassicalRegister(size=reg.size, name="ro")
+        circuit.cregs[i] = ro_reg
+
+        # fix classical bit references in circuit
+        for i, clbit in enumerate(circuit.clbits):
+            orig_reg = bit_info[clbit]["reg"]
+            if orig_reg.name == orig_readout_name:
+                idx = bit_info[clbit]["idx"]
+                circuit.clbits[i] = ro_reg[idx]
+
+        # fix classical bit references in measures
+        for m in measures:
+            for i, clbit in enumerate(m[2]):
+                orig_reg = bit_info[clbit]["reg"]
+                if orig_reg.name == orig_readout_name:
+                    idx = bit_info[clbit]["idx"]
+                    m[2][i] = ro_reg[idx]
+        break
 
 
 def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
@@ -94,8 +109,8 @@ class RigettiQCSBackend(BackendV1):
     def __init__(
         self,
         *,
-        compiler_timeout: float = 5.0,
-        execution_timeout: float = 5.0,
+        compiler_timeout: float,
+        execution_timeout: float,
         client_configuration: QCSClientConfiguration,
         engagement_manager: EngagementManager,
         backend_configuration: QasmBackendConfiguration,
@@ -124,7 +139,11 @@ class RigettiQCSBackend(BackendV1):
     def _default_options(cls) -> Options:
         return Options(shots=None)
 
-    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> RigettiQCSJob:
+    def run(
+        self,
+        run_input: Union[QuantumCircuit, List[QuantumCircuit]],
+        **options: Any,
+    ) -> RigettiQCSJob:
         if not isinstance(run_input, list):
             run_input = [run_input]
 
@@ -139,7 +158,7 @@ class RigettiQCSBackend(BackendV1):
                 engagement_manager=self._engagement_manager,
             )
 
-        job = RigettiQCSJob(
+        return RigettiQCSJob(
             job_id=str(uuid4()),
             circuits=run_input,
             options=options,
@@ -147,4 +166,3 @@ class RigettiQCSBackend(BackendV1):
             backend=self,
             configuration=self.configuration(),
         )
-        return job
