@@ -1615,12 +1615,12 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-docs = ["Sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild"]
+docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "e83f8aa9e92ecaf5bbbd1fd277882a2aeefcdfd923387f282869696c35737606"
+content-hash = "b3d655969aa15559dfdd2f2b2c81bd0466b93b34ae61174ccedf2190845d8ce8"
 
 [metadata.files]
 alabaster = [
