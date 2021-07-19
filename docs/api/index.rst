@@ -1,7 +1,7 @@
 Classes
 =======
 
-.. module:: qiskit_rigetti_provider
+.. module:: qiskit_rigetti
 
 .. autoapiclass:: RigettiQCSProvider
     :members:

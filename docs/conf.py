@@ -1,11 +1,11 @@
 # Configuration file for the Sphinx documentation builder.
 
-project = "qiskit-rigetti-provider"
+project = "qiskit-rigetti"
 copyright = "2021, Rigetti Computing"
 author = "Rigetti Computing"
 
 # The full version, including alpha/beta/rc tags
-from qiskit_rigetti_provider import __version__
+from qiskit_rigetti import __version__
 
 release = __version__
 
@@ -28,7 +28,7 @@ source_suffix = {
 # Document Python Code
 autoapi_type = "python"
 autoapi_python_class_content = "both"
-autoapi_dirs = ["../qiskit_rigetti_provider"]
+autoapi_dirs = ["../qiskit_rigetti"]
 autoapi_options = [
     "members",
     "undoc-members",

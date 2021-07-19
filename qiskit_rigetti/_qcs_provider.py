@@ -38,8 +38,6 @@ class RigettiQCSProvider(ProviderV1):
         engagement_manager: Optional[EngagementManager] = None,
     ) -> None:
         """
-        Create new provider.
-
         Args:
             execution_timeout: Time limit for execution requests, in seconds.
             compiler_timeout: Time limit for compiler requests, in seconds.

@@ -18,10 +18,14 @@ from typing import Any
 from qiskit import QuantumCircuit
 from qiskit.circuit import InstructionSet
 
-from qiskit_rigetti_provider.gates._can import CanonicalGate
-from qiskit_rigetti_provider.gates._cphase import CPhase00Gate, CPhase01Gate, CPhase10Gate
-from qiskit_rigetti_provider.gates._pswap import PSwapGate
-from qiskit_rigetti_provider.gates._xy import XYGate
+from .gates import (
+    CanonicalGate,
+    CPhase00Gate,
+    CPhase01Gate,
+    CPhase10Gate,
+    PSwapGate,
+    XYGate,
+)
 
 
 class QuilCircuit(QuantumCircuit):
@@ -32,29 +36,29 @@ class QuilCircuit(QuantumCircuit):
     """
 
     def xy(self, theta: float, qubit1: Any, qubit2: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.xy.XYGate`."""
+        """Apply :class:`qiskit_rigetti.gates.xy.XYGate`."""
         return self.append(XYGate(theta), [qubit1, qubit2], [])
 
     def piswap(self, theta: float, qubit1: Any, qubit2: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.xy.XYGate`."""
+        """Apply :class:`qiskit_rigetti.gates.xy.XYGate`."""
         return self.xy(theta, qubit1, qubit2)
 
     def pswap(self, theta: float, qubit1: Any, qubit2: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.pswap.PSwapGate`."""
+        """Apply :class:`qiskit_rigetti.gates.pswap.PSwapGate`."""
         return self.append(PSwapGate(theta), [qubit1, qubit2], [])
 
     def cphase00(self, theta: float, control_qubit: Any, target_qubit: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.cphase.CPhase00`."""
+        """Apply :class:`qiskit_rigetti.gates.cphase.CPhase00`."""
         return self.append(CPhase00Gate(theta), [control_qubit, target_qubit], [])
 
     def cphase01(self, theta: float, control_qubit: Any, target_qubit: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.cphase.CPhase01`."""
+        """Apply :class:`qiskit_rigetti.gates.cphase.CPhase01`."""
         return self.append(CPhase01Gate(theta), [control_qubit, target_qubit], [])
 
     def cphase10(self, theta: float, control_qubit: Any, target_qubit: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.cphase.CPhase10`."""
+        """Apply :class:`qiskit_rigetti.gates.cphase.CPhase10`."""
         return self.append(CPhase10Gate(theta), [control_qubit, target_qubit], [])
 
     def can(self, alpha: float, beta: float, gamma: float, qubit1: Any, qubit2: Any) -> InstructionSet:
-        """Apply :class:`qiskit_rigetti_provider.gates.can.CanonicalGate`."""
+        """Apply :class:`qiskit_rigetti.gates.can.CanonicalGate`."""
         return self.append(CanonicalGate(alpha, beta, gamma), [qubit1, qubit2], [])

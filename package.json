@@ -34,6 +34,6 @@
         "message": "Release v${nextRelease.version} [skip ci]"
       }]
     ],
-    "repositoryUrl": "ssh://git@github.com/rigetti/qiskit-rigetti-provider.git"
+    "repositoryUrl": "ssh://git@github.com/rigetti/qiskit-rigetti.git"
   }
 }

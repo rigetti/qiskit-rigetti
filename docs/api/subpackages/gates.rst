@@ -1,5 +1,5 @@
 gates
 =====
 
-.. autoapimodule:: qiskit_rigetti_provider.gates
+.. autoapimodule:: qiskit_rigetti.gates
     :members:

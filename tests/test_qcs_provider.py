@@ -15,7 +15,7 @@
 ##############################################################################
 from pytest_httpx import HTTPXMock
 
-from qiskit_rigetti_provider import RigettiQCSProvider
+from qiskit_rigetti import RigettiQCSProvider
 
 
 def test_get_simulator(monkeypatch):

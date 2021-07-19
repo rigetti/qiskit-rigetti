@@ -1,10 +1,20 @@
 [tool.poetry]
-name = "qiskit-rigetti-provider"
+name = "qiskit-rigetti"
 version = "0.3.0"
 description = "Provider for running Qiskit circuits on Rigetti QPUs and simulators."
 authors = ["Rigetti Computing"]
-packages = [
-    { include = "qiskit_rigetti_provider" }
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/rigetti/qiskit-rigetti"
+documentation = "https://qiskit-rigetti.readthedocs.io"
+keywords = ["Qiskit", "Quil", "Rigetti", "pyQuil", "Quantum"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Programming Language :: Other",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Typing :: Typed"
 ]
 
 [tool.poetry.dependencies]
@@ -27,6 +37,7 @@ pytest-cov = "^2.11.1"
 pytest-httpx = "^0.9"
 mypy = "^0.800"
 pytest-mock = "^3.6.1"
+pip-licenses = "^3.5.1"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild"]
