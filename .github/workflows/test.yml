@@ -88,5 +88,5 @@ jobs:
           SPHINXOPTS: "-W"
         run: |
           sudo apt update
-          . scripts/ci_install_deps
+          . scripts/ci_install_deps "-E docs"
           poetry run make docs
