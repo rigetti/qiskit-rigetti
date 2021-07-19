@@ -15,10 +15,10 @@
 ##############################################################################
 import sys
 
-from .quil_circuit import QuilCircuit
-from .qcs_backend import RigettiQCSBackend
-from .qcs_job import RigettiQCSJob
-from .qcs_provider import RigettiQCSProvider
+from ._quil_circuit import QuilCircuit
+from ._qcs_backend import RigettiQCSBackend
+from ._qcs_job import RigettiQCSJob
+from ._qcs_provider import RigettiQCSProvider
 
 if sys.version_info < (3, 8):
     from importlib_metadata import version  # pragma: nocover

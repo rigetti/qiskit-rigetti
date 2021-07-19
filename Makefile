@@ -18,4 +18,12 @@ check-types:
 
 .PHONY: test
 test:
-	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term tests
+	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --doctest-modules tests qiskit_rigetti_provider
+
+.PHONY: docs
+docs:
+	$(MAKE) -C docs html
+
+.PHONY: watch-docs
+watch-docs:
+	sphinx-autobuild docs docs/_build/html

@@ -53,15 +53,13 @@ class RigettiQCSJob(JobV1):
         configuration: QasmBackendConfiguration,
     ) -> None:
         """
-        Create new job.
-
-        :param job_id: unique identifier for this job
-        :param circuits: list of circuits to execute
-        :param options: execution options (e.g. "shots")
-        :param qc: quantum computer to run against
-        :param backend: backend that created this job
-        :param configuration: configuration from parent backend
-        :param configuration: list of pre-execution hooks
+        Args:
+            job_id: Unique identifier for this job
+            circuits: List of circuits to execute
+            options: Execution options (e.g. "shots")
+            qc: Quantum computer to run against
+            backend: :class:`RigettiQCSBackend` that created this job
+            configuration: Configuration from parent backend
         """
         super().__init__(backend, job_id)
 
@@ -77,9 +75,8 @@ class RigettiQCSJob(JobV1):
 
     def submit(self) -> None:
         """
-        Not implemented for this class as it uses the asynchronous pattern
-
-        :raises NotImplementedError:
+        Raises:
+            NotImplementedError: This class uses the asynchronous pattern, so this method should not be called.
         """
         raise NotImplementedError("'submit' is not implemented as this class uses the asynchronous pattern")
 
@@ -114,7 +111,8 @@ class RigettiQCSJob(JobV1):
         """
         Wait until the job is complete, then return a result.
 
-        :raises JobError: if there was a problem running the Job or retrieving the result
+        Raises:
+            JobError: If there was a problem running the Job or retrieving the result
         """
         if self._result is not None:
             return self._result
@@ -160,10 +158,8 @@ class RigettiQCSJob(JobV1):
 
     def cancel(self) -> None:
         """
-        Attempt to cancel this job. Because this job implementation is synchronous, calling
-        this method will always raise a ``NotImplementedError``.
-
-        :raises NotImplementedError:
+        Raises:
+            NotImplementedError: There is currently no way to cancel this job.
         """
         raise NotImplementedError("Cancelling jobs is not supported")
 

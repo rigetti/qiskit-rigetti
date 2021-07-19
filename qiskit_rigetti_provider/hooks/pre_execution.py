@@ -13,7 +13,10 @@ def enable_active_reset(quil: Program) -> Program:
 
     See: https://github.com/quil-lang/quil/blob/master/spec/Quil.md#state-reset for more information.
 
-    :param quil: Quil program to transform.
-    :return Copy of the input program, with active reset enabled.
+    Args:
+        quil: Quil program to transform.
+
+    Returns:
+        Copy of the input program, with active reset enabled.
     """
     return quil.prepend_instructions([RESET()])

@@ -159,22 +159,13 @@ job = execute(circuit, backend, shots=10, before_execute=[enable_active_reset])
 
 ## Development
 
-To run tests:
+> **Note**: This module is developed in Python 3.7, other versions will currently fail type checking.
 
-```bash
-make test
-```
+Dependencies are managed with [Poetry](https://python-poetry.org/) so you need to install that first. Once you've installed all dependencies (`poetry install`) and activated the virtual environment (`poetry shell`), you can use these rules from the `Makefile` to run common tasks:
 
-To run style and type checks:
-
-```bash
-make check-all
-```
-
-> Use the `check-style` or `check-types` Make tasks to run style and type checks individually.
-
-You can reformat all code according to this project's style configuration with:
-
-```bash
-make format
-```
+1. Run tests: `make test`
+1. Check style and types: `make check-all`
+1. Check style only: `make check-style`
+1. Check types only: `make check-types`
+1. Reformat all code (to make `check-style` pass): `make format`
+1. Build documentation, serve locally, and watch for changes: `make watch-docs`

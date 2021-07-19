@@ -13,27 +13,31 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
+__all__ = ["CanonicalGate"]
+
 import numpy as np
 from qiskit.extensions import UnitaryGate
 
 
 class CanonicalGate(UnitaryGate):
-    """Class for representing a canonical gate::
+    """
+    Class for representing a canonical gate
 
-    CAN(alpha, beta, gamma) = [[(exp(i*(alpha+beta-gamma)/2)+exp(i*(alpha-beta+gamma)/2))/2, 0,                                                                    0,                                                                    (exp(i*(alpha-beta+gamma)/2)-exp(i*(alpha+beta-gamma)/2))/2],
-                               [0,                                                                 (exp(i*(alpha+beta+gamma)/(-2))+exp(i*(beta+gamma-alpha)/2))/2, (exp(i*(alpha+beta+gamma)/(-2))-exp(i*(beta+gamma-alpha)/2))/2, 0                                                                ],
-                               [0,                                                                 (exp(i*(alpha+beta+gamma)/(-2))-exp(i*(beta+gamma-alpha)/2))/2, (exp(i*(alpha+beta+gamma)/(-2))+exp(i*(beta+gamma-alpha)/2))/2, 0                                                                ],
-                               [(exp(i*(alpha-beta+gamma)/2)-exp(i*(alpha+beta-gamma)/2))/2, 0,                                                                    0,                                                                    (exp(i*(alpha+beta-gamma)/2)+exp(i*(alpha-beta+gamma)/2))/2]]
+    ::
+
+        CAN(alpha, beta, gamma) = [[(exp(i*(alpha+beta-gamma)/2)+exp(i*(alpha-beta+gamma)/2))/2, 0,                                                                    0,                                                                    (exp(i*(alpha-beta+gamma)/2)-exp(i*(alpha+beta-gamma)/2))/2],
+                                   [0,                                                                 (exp(i*(alpha+beta+gamma)/(-2))+exp(i*(beta+gamma-alpha)/2))/2, (exp(i*(alpha+beta+gamma)/(-2))-exp(i*(beta+gamma-alpha)/2))/2, 0                                                                ],
+                                   [0,                                                                 (exp(i*(alpha+beta+gamma)/(-2))-exp(i*(beta+gamma-alpha)/2))/2, (exp(i*(alpha+beta+gamma)/(-2))+exp(i*(beta+gamma-alpha)/2))/2, 0                                                                ],
+                                   [(exp(i*(alpha-beta+gamma)/2)-exp(i*(alpha+beta-gamma)/2))/2, 0,                                                                    0,                                                                    (exp(i*(alpha+beta-gamma)/2)+exp(i*(alpha-beta+gamma)/2))/2]]
 
     """  # noqa: E501
 
     def __init__(self, alpha: float, beta: float, gamma: float):
         """
-        Create new canonical gate.
-
-        :param alpha: x-axis phase angle
-        :param beta: y-axis phase angle
-        :param gamma: z-axis phase angle
+        Args:
+            alpha: X-axis phase angle
+            beta: Y-axis phase angle
+            gamma: Z-axis phase angle
         """
         # fmt: off
         super().__init__(

@@ -21,7 +21,7 @@ from qcs_api_client.client import build_sync_client, QCSClientConfiguration
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
 
-from .qcs_backend import RigettiQCSBackend
+from ._qcs_backend import RigettiQCSBackend
 
 
 class RigettiQCSProvider(ProviderV1):
@@ -40,10 +40,11 @@ class RigettiQCSProvider(ProviderV1):
         """
         Create new provider.
 
-        :param execution_timeout: Time limit for execution requests, in seconds.
-        :param compiler_timeout: Time limit for compiler requests, in seconds.
-        :param client_configuration: QCS client configuration. If one is not provided, a default will be loaded.
-        :param engagement_manager: QPU engagement manager. If one is not provided, a default one will be created.
+        Args:
+            execution_timeout: Time limit for execution requests, in seconds.
+            compiler_timeout: Time limit for compiler requests, in seconds.
+            client_configuration: QCS client configuration. If one is not provided, a default will be loaded.
+            engagement_manager: QPU engagement manager. If one is not provided, a default one will be created.
         """
         super().__init__()
         self._backends: List[RigettiQCSBackend] = []
@@ -54,7 +55,17 @@ class RigettiQCSProvider(ProviderV1):
             client_configuration=self._client_configuration
         )
 
-    def backends(self, name: Optional[str] = None, **kwargs: Any) -> List[RigettiQCSBackend]:
+    def backends(self, name: Optional[str] = None, **__: Any) -> List[RigettiQCSBackend]:
+        """
+        Get the list of :class:`RigettiQCSBackend` corresponding to the available Quantum Processors.
+
+        Args:
+            name: An optional QPU name to match against (e.g. "Aspen-9"). If provided, only matching backends will be
+                    returned.
+
+        Returns:
+            List[RigettiQCSBackend]: The list of matching backends.
+        """
         if not self._backends:
             for qpu, data in self._get_quantum_processors().items():
                 configuration = _configuration(qpu, num_qubits=data["num_qubits"], local=False, simulator=False)
@@ -77,9 +88,11 @@ class RigettiQCSProvider(ProviderV1):
         """
         Get a simulator (QVM).
 
-        :param num_qubits: number of qubits the simulator should have
-        :param noisy: whether or not the simulator should simulate noise
-        :return: a backend representing the simulator
+        Args:
+            num_qubits: Number of qubits the simulator should have
+            noisy: Whether or not the simulator should simulate noise
+        Returns:
+            RigettiQCSBackend: A backend representing the simulator
         """
         qvm_url = self._client_configuration.profile.applications.pyquil.qvm_url
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
