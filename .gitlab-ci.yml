@@ -32,7 +32,7 @@ cache:
   - npm i
 
 .publish-pypi-public: &publish-pypi-public
-  - poetry config http-basic.pypi rigetti $PUBLIC_PYPI_PASSWORD
+  - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
   - poetry publish --build
 
 Checks:
