@@ -13,6 +13,11 @@ qiskit = "^0.27.0"
 pyquil = "^3.0.0"
 numpy = "^1.20.1"
 importlib_metadata = {version = "*", python = "<3.8"}
+sphinx = { version = "^4.1.1", optional = true }
+sphinx-autoapi = { version = "^1.8.1", optional = true }
+furo = { version = "^2021.7.5-beta.38", optional = true }
+myst-parser = { version = "^0.15.1", optional = true }
+sphinx-autobuild = { version = "^2021.3.14", optional = true }
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
@@ -22,11 +27,9 @@ pytest-cov = "^2.11.1"
 pytest-httpx = "^0.9"
 mypy = "^0.800"
 pytest-mock = "^3.6.1"
-Sphinx = "^4.1.1"
-sphinx-autoapi = "^1.8.1"
-furo = "^2021.7.5-beta.38"
-myst-parser = "^0.15.1"
-sphinx-autobuild = "^2021.3.14"
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild"]
 
 [tool.black]
 line-length = 120
@@ -53,3 +56,7 @@ exclude = '''
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

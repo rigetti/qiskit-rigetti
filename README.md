@@ -159,7 +159,7 @@ job = execute(circuit, backend, shots=10, before_execute=[enable_active_reset])
 
 ## Development
 
-**This module is developed in Python 3.7, other versions will currently fail type checking.**
+> **Note**: This module is developed in Python 3.7, other versions will currently fail type checking.
 
 Dependencies are managed with [Poetry](https://python-poetry.org/) so you need to install that first. Once you've installed all dependencies (`poetry install`) and activated the virtual environment (`poetry shell`), you can use these rules from the `Makefile` to run common tasks:
 

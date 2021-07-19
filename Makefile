@@ -18,7 +18,7 @@ check-types:
 
 .PHONY: test
 test:
-	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --doctest-modules
+	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --doctest-modules tests qiskit_rigetti_provider
 
 .PHONY: docs
 docs:
