@@ -14,7 +14,7 @@ readme = ""
 setup(
     long_description=readme,
     name="qiskit-rigetti-provider",
-    version="0.2.1",
+    version="0.3.0",
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
     author="Rigetti Computing",
@@ -36,6 +36,13 @@ setup(
             "pytest-cov==2.*,>=2.11.1",
             "pytest-httpx==0.*,>=0.9.0",
             "pytest-mock==3.*,>=3.6.1",
-        ]
+        ],
+        "docs": [
+            "furo==2021.*,>=2021.7.5.b38",
+            "myst-parser==0.*,>=0.15.1",
+            "sphinx==4.*,>=4.1.1",
+            "sphinx-autoapi==1.*,>=1.8.1",
+            "sphinx-autobuild==2021.*,>=2021.3.14",
+        ],
     },
 )
