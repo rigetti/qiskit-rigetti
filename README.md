@@ -1,6 +1,6 @@
 [![Tests](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml/badge.svg)](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml)
-[![docs][docs-https://readthedocs.org/projects/qiskit-rigetti/badge/?version=latest]][http://qiskit-rigetti.readthedocs.io/en/latest/?badge=latest]
-[![pypi][https://img.shields.io/pypi/v/qiskit-rigetti.svg]][https://pypi.org/project/qiskit-rigetti/]
+[![Documentation Status](https://readthedocs.org/projects/qiskit-rigetti/badge/?version=latest)](https://qiskit-rigetti.readthedocs.io/en/latest/?badge=latest)
+[![pypi](https://img.shields.io/pypi/v/qiskit-rigetti.svg)](https://pypi.org/project/qiskit-rigetti/)
 
 # Rigetti Provider for Qiskit
 
