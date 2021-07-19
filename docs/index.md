@@ -1,7 +1,7 @@
 # Qiskit Rigetti Provider
 
 ```{admonition} Note
-This documentation supports Light ☀️ and dark 🌙 modes and will automatically adjust based on your browser's settings.
+This documentation supports light ☀️ and dark 🌙 modes and will automatically adjust based on your browser's settings.
 ```
 
 ```{include} ../README.md

@@ -26,6 +26,7 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
             >>> p = RigettiQCSProvider()
             >>> backend = p.get_simulator(num_qubits=2, noisy=True)
             >>> circuit = QuilCircuit(2, 2)
+            >>> circuit.measure_all()
             >>> job = execute(circuit, backend, shots=10, before_compile=[set_rewiring("NAIVE")])
     """
 

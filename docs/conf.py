@@ -12,7 +12,12 @@ release = __version__
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["sphinx.ext.autodoc", "autoapi.extension", "sphinx.ext.napoleon", "myst_parser"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "autoapi.extension",
+    "sphinx.ext.napoleon",
+    "myst_parser",
+]
 
 source_suffix = {
     ".rst": "restructuredtext",
