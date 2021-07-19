@@ -16,10 +16,14 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-from qiskit_rigetti_provider.gates._can import CanonicalGate
-from qiskit_rigetti_provider.gates._cphase import CPhase00Gate, CPhase01Gate, CPhase10Gate
-from qiskit_rigetti_provider.gates._pswap import PSwapGate
-from qiskit_rigetti_provider.gates._xy import XYGate
+from qiskit_rigetti.gates import (
+    CanonicalGate,
+    CPhase00Gate,
+    CPhase01Gate,
+    CPhase10Gate,
+    PSwapGate,
+    XYGate,
+)
 
 
 def test_xy_gate():

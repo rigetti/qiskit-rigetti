@@ -1,4 +1,4 @@
-PACKAGE_NAME = qiskit_rigetti_provider
+PACKAGE_NAME = qiskit_rigetti
 
 .PHONY: format
 format:
@@ -18,7 +18,7 @@ check-types:
 
 .PHONY: test
 test:
-	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --doctest-modules tests qiskit_rigetti_provider
+	pytest -v --cov=$(PACKAGE_NAME) --cov-report=term --doctest-modules tests qiskit_rigetti
 
 .PHONY: docs
 docs:

@@ -90,3 +90,23 @@ jobs:
           sudo apt update
           . scripts/ci_install_deps "-E docs"
           poetry run make docs
+
+  check-licenses:
+    name: Check Dependency Licenses
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - uses: actions/cache@v2
+        with:
+          path: .venv
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Check Licenses
+        # This is an exact match list, new dependencies will likely require their own entries
+        run: |
+          sudo apt update
+          . scripts/ci_install_deps
+          poetry run pip-licenses --allow-only="MIT License;Apache Software License;BSD License;GNU Lesser General Public License v2 or later (LGPLv2+);Python Software Foundation License;Apache License 2.0;new BSD;Apache-2.0;ISCL;ISC License (ISCL);BSD;Mozilla Public License 2.0 (MPL 2.0)"

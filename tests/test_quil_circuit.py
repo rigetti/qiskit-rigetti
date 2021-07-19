@@ -16,11 +16,15 @@
 from qiskit import QuantumRegister
 from qiskit.circuit import Qubit
 
-from qiskit_rigetti_provider.gates._can import CanonicalGate
-from qiskit_rigetti_provider.gates._cphase import CPhase00Gate, CPhase01Gate, CPhase10Gate
-from qiskit_rigetti_provider.gates._pswap import PSwapGate
-from qiskit_rigetti_provider.gates._xy import XYGate
-from qiskit_rigetti_provider._quil_circuit import QuilCircuit
+from qiskit_rigetti.gates import (
+    CanonicalGate,
+    CPhase00Gate,
+    CPhase01Gate,
+    CPhase10Gate,
+    PSwapGate,
+    XYGate,
+)
+from qiskit_rigetti import QuilCircuit
 
 
 def test_xy():

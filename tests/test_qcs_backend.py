@@ -17,7 +17,7 @@ import pytest
 from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
-from qiskit_rigetti_provider import RigettiQCSProvider, RigettiQCSBackend
+from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend
 
 
 def test_run(backend: RigettiQCSBackend):

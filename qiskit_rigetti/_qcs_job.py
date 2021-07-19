@@ -31,8 +31,8 @@ from qiskit.qobj import QobjExperimentHeader
 from qiskit.result import Result
 from qiskit.result.models import ExperimentResult, ExperimentResultData
 
-from qiskit_rigetti_provider.hooks.pre_compilation import PreCompilationHook
-from qiskit_rigetti_provider.hooks.pre_execution import PreExecutionHook
+from .hooks.pre_compilation import PreCompilationHook
+from .hooks.pre_execution import PreExecutionHook
 
 Response = Union[QVMExecuteResponse, QPUExecuteResponse]
 

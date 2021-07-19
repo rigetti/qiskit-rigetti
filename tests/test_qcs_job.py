@@ -22,8 +22,8 @@ from pytest_mock import MockerFixture
 from qiskit import QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
 
-from qiskit_rigetti_provider import RigettiQCSJob, RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
-from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
+from qiskit_rigetti import RigettiQCSJob, RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
+from qiskit_rigetti.hooks.pre_execution import enable_active_reset
 
 
 def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):

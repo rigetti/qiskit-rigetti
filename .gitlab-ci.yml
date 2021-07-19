@@ -31,10 +31,9 @@ cache:
   - apt-get install -f -y nodejs
   - npm i
 
-.publish-pypi-internal: &publish-pypi-internal
-  - poetry config repositories.internal $PYPI_URL
-  - poetry config http-basic.internal rigetti $PYPI_PASSWORD
-  - poetry publish --build -r internal
+.publish-pypi-public: &publish-pypi-public
+  - poetry config http-basic.pypi rigetti $PUBLIC_PYPI_PASSWORD
+  - poetry publish --build
 
 Checks:
   stage: test
@@ -71,24 +70,6 @@ Test Unit (3.9):
   extends: .unit-test
   image: python:3.9
 
-PyPi Publish Dev:
-  stage: deploy
-  allow_failure: true
-  script:
-    - *install-dependencies
-    - *install-dephell
-    - *install-npm
-    - npx semantic-release --branches $CI_COMMIT_REF --dry-run
-    - export MOST_RECENT_VERSION=$(git describe --abbrev=0 --tags | sed 's/v//')
-    - export VERSION_TAG="${MOST_RECENT_VERSION}dev${CI_JOB_ID}"
-    - poetry version "$VERSION_TAG"
-    - dephell deps convert
-    - *publish-pypi-internal
-  rules:
-    # Skip this job if running on main
-    - if: "$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH"
-      when: manual
-
 PyPi Publish Release:
   stage: deploy
   script:
@@ -99,7 +80,7 @@ PyPi Publish Release:
     # Depending on the config, this may add a tag and then push a release to GitHub.
     - npx semantic-release
     # This reads the tag chosen by semantic-release
-    - *publish-pypi-internal
+    - *publish-pypi-public
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       when: on_success

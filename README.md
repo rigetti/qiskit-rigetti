@@ -1,6 +1,8 @@
-[![Tests](https://github.com/rigetti/qiskit-rigetti-provider/actions/workflows/test.yml/badge.svg)](https://github.com/rigetti/qiskit-rigetti-provider/actions/workflows/test.yml)
+[![Tests](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml/badge.svg)](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml)
+[![docs][docs-https://readthedocs.org/projects/qiskit-rigetti/badge/?version=latest]][http://qiskit-rigetti.readthedocs.io/en/latest/?badge=latest]
+[![pypi][https://img.shields.io/pypi/v/qiskit-rigetti.svg]][https://pypi.org/project/qiskit-rigetti/]
 
-# Qiskit Rigetti Provider
+# Rigetti Provider for Qiskit
 
 ## Pre-requisites
 
@@ -34,7 +36,7 @@ Example:
 
 ```python
 from qiskit import execute
-from qiskit_rigetti_provider import RigettiQCSProvider, QuilCircuit
+from qiskit_rigetti import RigettiQCSProvider, QuilCircuit
 
 # Get provider and backend
 p = RigettiQCSProvider()
@@ -131,7 +133,7 @@ Use `set_rewiring` to provide a [rewiring directive](https://pyquil-docs.rigetti
 to the Quil compiler. For example:
 
 ```python
-from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
+from qiskit_rigetti.hooks.pre_compilation import set_rewiring
 
 ...
 
@@ -148,7 +150,7 @@ Use `enable_active_reset` to enable [active qubit reset](https://github.com/quil
 an optimization that can significantly reduce the time between executions. For example:
 
 ```python
-from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
+from qiskit_rigetti.hooks.pre_execution import enable_active_reset
 
 ...
 

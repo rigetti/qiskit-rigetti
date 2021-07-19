@@ -1,7 +1,7 @@
 from pyquil import Program
 
-from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
-from qiskit_rigetti_provider.hooks.pre_execution import enable_active_reset
+from qiskit_rigetti.hooks.pre_compilation import set_rewiring
+from qiskit_rigetti.hooks.pre_execution import enable_active_reset
 
 
 def test_set_rewiring():

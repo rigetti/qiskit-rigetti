@@ -20,13 +20,13 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
         Applying rewiring to a program::
 
             >>> from qiskit import execute
-            >>> from qiskit_rigetti_provider import RigettiQCSProvider, QuilCircuit
-            >>> from qiskit_rigetti_provider.hooks.pre_compilation import set_rewiring
+            >>> from qiskit_rigetti import RigettiQCSProvider, QuilCircuit
+            >>> from qiskit_rigetti.hooks.pre_compilation import set_rewiring
 
             >>> p = RigettiQCSProvider()
             >>> backend = p.get_simulator(num_qubits=2, noisy=True)
             >>> circuit = QuilCircuit(2, 2)
-            >>> circuit.measure_all()
+            >>> _ = circuit.measure([0, 1], [0, 1])
             >>> job = execute(circuit, backend, shots=10, before_compile=[set_rewiring("NAIVE")])
     """
 

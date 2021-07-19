@@ -18,9 +18,9 @@ setup(
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
     author="Rigetti Computing",
-    packages=["qiskit_rigetti_provider", "qiskit_rigetti_provider.gates", "qiskit_rigetti_provider.hooks"],
+    packages=["qiskit_rigetti", "qiskit_rigetti.gates", "qiskit_rigetti.hooks"],
     package_dir={"": "."},
-    package_data={"qiskit_rigetti_provider": ["*.typed"]},
+    package_data={"qiskit_rigetti": ["*.typed"]},
     install_requires=[
         'importlib-metadata; python_version < "3.8"',
         "numpy==1.*,>=1.20.1",
