@@ -9,16 +9,43 @@ try:
 except ImportError:
     from distutils.core import setup
 
+import os.path
+
 readme = ""
+here = os.path.abspath(os.path.dirname(__file__))
+readme_path = os.path.join(here, "README.rst")
+if os.path.exists(readme_path):
+    with open(readme_path, "rb") as stream:
+        readme = stream.read().decode("utf8")
 
 setup(
     long_description=readme,
-    name="qiskit-rigetti-provider",
-    version="0.3.0",
+    name="qiskit-rigetti",
+    version="0.4.0",
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
+    project_urls={
+        "documentation": "https://qiskit-rigetti.readthedocs.io",
+        "repository": "https://github.com/rigetti/qiskit-rigetti",
+    },
     author="Rigetti Computing",
-    packages=["qiskit_rigetti", "qiskit_rigetti.gates", "qiskit_rigetti.hooks"],
+    license="Apache-2.0",
+    keywords="Qiskit Quil Rigetti pyQuil Quantum",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Programming Language :: Other",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Typing :: Typed",
+    ],
+    packages=[
+        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp",
+        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp.generator",
+        "qiskit_rigetti",
+        "qiskit_rigetti.gates",
+        "qiskit_rigetti.hooks",
+    ],
     package_dir={"": "."},
     package_data={"qiskit_rigetti": ["*.typed"]},
     install_requires=[
@@ -32,6 +59,7 @@ setup(
             "black==20.*,>=20.8.0.b1",
             "flake8==3.*,>=3.8.1",
             "mypy==0.*,>=0.800.0",
+            "pip-licenses==3.*,>=3.5.1",
             "pytest==6.*,>=6.2.2",
             "pytest-cov==2.*,>=2.11.1",
             "pytest-httpx==0.*,>=0.9.0",
