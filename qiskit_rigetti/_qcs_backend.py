@@ -13,7 +13,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-import warnings
 from typing import Optional, Any, Union, List
 from uuid import uuid4
 
@@ -21,22 +20,11 @@ from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
 from qcs_api_client.client import QCSClientConfiguration
 from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Barrier, Measure
+from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 
 from ._qcs_job import RigettiQCSJob
-
-
-def _remove_barriers(circuit: QuantumCircuit) -> None:
-    """Strips barriers from the circuit. Mutates the input circuit."""
-    data = []
-    for d in circuit.data:
-        if isinstance(d[0], Barrier):
-            warnings.warn("`barrier` has no effect on a RigettiQCSBackend and will be omitted")
-        else:
-            data.append(d)
-    circuit.data = data
 
 
 def _prepare_readouts(circuit: QuantumCircuit) -> None:
@@ -96,7 +84,6 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     Returns a prepared copy of the circuit for execution on the QCS Backend.
     """
     circuit = circuit.copy()
-    _remove_barriers(circuit)
     _prepare_readouts(circuit)
     return circuit
 

@@ -31,6 +31,6 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
     """
 
     def fn(qasm: str) -> str:
-        return qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}"')
+        return qasm.replace("OPENQASM 2.0;", f'OPENQASM 2.0;\n#pragma INITIAL_REWIRING "{rewiring}";')
 
     return fn

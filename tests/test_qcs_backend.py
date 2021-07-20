@@ -57,25 +57,6 @@ def test_run__multiple_circuits(backend: RigettiQCSBackend):
     assert result.get_counts(1).keys() == {"000"}
 
 
-def test_run__barrier(backend: RigettiQCSBackend):
-    circuit = make_circuit()
-    circuit.barrier()
-    qasm_before = circuit.qasm()
-
-    with pytest.warns(UserWarning, match="`barrier` has no effect on a RigettiQCSBackend and will be omitted"):
-        job = execute(circuit, backend, shots=10)
-
-    assert circuit.qasm() == qasm_before, "should not modify original circuit"
-
-    assert job.backend() is backend
-    result = job.result()
-    assert job.status() == JobStatus.DONE
-    assert result.backend_name == backend.configuration().backend_name
-    assert result.results[0].header.name == circuit.name
-    assert result.results[0].shots == 10
-    assert result.get_counts().keys() == {"00"}
-
-
 def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
     circuit = QuantumCircuit(QuantumRegister(2, "q"), ClassicalRegister(2, "not_ro"))
     circuit.measure([0, 1], [0, 1])
