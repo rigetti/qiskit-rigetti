@@ -39,13 +39,7 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Typing :: Typed",
     ],
-    packages=[
-        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp",
-        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp.generator",
-        "qiskit_rigetti",
-        "qiskit_rigetti.gates",
-        "qiskit_rigetti.hooks",
-    ],
+    packages=["qiskit_rigetti", "qiskit_rigetti.gates", "qiskit_rigetti.hooks"],
     package_dir={"": "."},
     package_data={"qiskit_rigetti": ["*.typed"]},
     install_requires=[
@@ -67,7 +61,9 @@ setup(
         ],
         "docs": [
             "furo==2021.*,>=2021.7.5.b38",
+            "ipython==7.*,>=7.25.0",
             "myst-parser==0.*,>=0.15.1",
+            "nbsphinx==0.*,>=0.8.6",
             "sphinx==4.*,>=4.1.1",
             "sphinx-autoapi==1.*,>=1.8.1",
             "sphinx-autobuild==2021.*,>=2021.3.14",

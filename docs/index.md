@@ -10,6 +10,14 @@ This documentation supports light ☀️ and dark 🌙 modes and will automatica
 ```
 
 ```{toctree}
+   :maxdepth: 1
+   :caption: Examples
+   
+examples/qaoa_qiskit.ipynb
+examples/qaoa_pyquil.ipynb
+```
+
+```{toctree}
    :maxdepth: 2
    :caption: API Reference
    

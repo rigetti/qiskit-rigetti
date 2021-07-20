@@ -23,7 +23,6 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Check style
         run: |
-          sudo apt update
           . scripts/ci_install_deps
           poetry run make check-style
 
@@ -42,7 +41,6 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Check types
         run: |
-          sudo apt update
           . scripts/ci_install_deps
           poetry run make check-types
 
@@ -64,7 +62,6 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Test (Python ${{ matrix.python-version }})
         run: |
-          sudo apt update
           . scripts/ci_install_deps
           docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S -P"
           docker run --rm -itd -p 5000:5000 rigetti/qvm -S
@@ -88,6 +85,7 @@ jobs:
           SPHINXOPTS: "-W"
         run: |
           sudo apt update
+          sudo apt install pandoc
           . scripts/ci_install_deps "-E docs"
           poetry run make docs
 
@@ -107,6 +105,5 @@ jobs:
       - name: Check Licenses
         # This is an exact match list, new dependencies will likely require their own entries
         run: |
-          sudo apt update
           . scripts/ci_install_deps
           poetry run pip-licenses --allow-only="MIT License;Apache Software License;BSD License;GNU Lesser General Public License v2 or later (LGPLv2+);Python Software Foundation License;Apache License 2.0;new BSD;Apache-2.0;ISCL;ISC License (ISCL);BSD;Mozilla Public License 2.0 (MPL 2.0)"

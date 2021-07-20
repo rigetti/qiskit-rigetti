@@ -17,6 +17,8 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.napoleon",
     "myst_parser",
+    "nbsphinx",
+    "sphinx.ext.mathjax",
 ]
 
 source_suffix = {
@@ -42,8 +44,9 @@ autoapi_generate_api_docs = False
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
+myst_update_mathjax = False
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = "furo"
