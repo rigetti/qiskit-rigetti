@@ -170,4 +170,4 @@ Dependencies are managed with [Poetry](https://python-poetry.org/) so you need t
 1. Check style only: `make check-style`
 1. Check types only: `make check-types`
 1. Reformat all code (to make `check-style` pass): `make format`
-1. Build documentation, serve locally, and watch for changes: `make watch-docs`
+1. Build documentation, serve locally, and watch for changes: `make watch-docs` (requires `docs` extra: `poetry install -E docs`)

@@ -28,6 +28,8 @@ sphinx-autoapi = { version = "^1.8.1", optional = true }
 furo = { version = "^2021.7.5-beta.38", optional = true }
 myst-parser = { version = "^0.15.1", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
+nbsphinx = { version = "^0.8.6", optional = true }
+ipython = {version = "^7.25.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
@@ -40,7 +42,7 @@ pytest-mock = "^3.6.1"
 pip-licenses = "^3.5.1"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild"]
+docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild", "nbsphinx", "ipython"]
 
 [tool.black]
 line-length = 120
