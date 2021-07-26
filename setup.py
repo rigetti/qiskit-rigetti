@@ -21,7 +21,7 @@ if os.path.exists(readme_path):
 setup(
     long_description=readme,
     name="qiskit-rigetti",
-    version="0.4.0",
+    version="0.4.1",
     description="Provider for running Qiskit circuits on Rigetti QPUs and simulators.",
     python_requires="==3.*,>=3.7.0",
     project_urls={
@@ -39,7 +39,13 @@ setup(
         "Topic :: Scientific/Engineering :: Physics",
         "Typing :: Typed",
     ],
-    packages=["qiskit_rigetti", "qiskit_rigetti.gates", "qiskit_rigetti.hooks"],
+    packages=[
+        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp",
+        "node_modules.npm.node_modules.node-gyp.gyp.pylib.gyp.generator",
+        "qiskit_rigetti",
+        "qiskit_rigetti.gates",
+        "qiskit_rigetti.hooks",
+    ],
     package_dir={"": "."},
     package_data={"qiskit_rigetti": ["*.typed"]},
     install_requires=[
