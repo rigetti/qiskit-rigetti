@@ -18,7 +18,7 @@ def test_set_rewiring():
     assert new_qasm.rstrip() == "\n".join(
         [
             "OPENQASM 2.0;",
-            '#pragma INITIAL_REWIRING "NAIVE"',
+            '#pragma INITIAL_REWIRING "NAIVE";',
             'include "qelib1.inc";',
         ]
     )

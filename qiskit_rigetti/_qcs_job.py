@@ -13,6 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
+import warnings
 from collections import Counter
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Union, Iterator, cast
@@ -87,6 +88,7 @@ class RigettiQCSJob(JobV1):
     def _start_circuit(self, circuit: QuantumCircuit) -> Response:
         shots = self._options["shots"]
         qasm = circuit.qasm()
+        qasm = self._handle_barriers(qasm, circuit.num_qubits)
 
         before_compile: List[PreCompilationHook] = self._options.get("before_compile", [])
         for fn in before_compile:
@@ -106,6 +108,29 @@ class RigettiQCSJob(JobV1):
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
         return cast(Response, self._qc.qam.execute(executable))
+
+    @staticmethod
+    def _handle_barriers(qasm: str, num_circuit_qubits: int) -> str:
+        lines = []
+        for line in qasm.splitlines():
+            if not line.startswith("barrier"):
+                lines.append(line)
+                continue
+
+            qubits = line[(len("barrier ")) :]
+            num_qubits = qubits.count(",") + 1
+            if num_qubits < num_circuit_qubits:
+                warnings.warn(
+                    "barriers not applied to all circuit qubits will be omitted during execution on a RigettiQCSBackend"
+                    " -- apply barrier to all circuit qubits to preserve barrier effect",
+                )
+                continue
+
+            lines += [
+                "#pragma PRESERVE_BLOCK;",
+                "#pragma END_PRESERVE_BLOCK;",
+            ]
+        return "\n".join(lines)
 
     def result(self) -> Result:
         """
