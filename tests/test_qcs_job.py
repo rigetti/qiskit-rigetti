@@ -140,7 +140,7 @@ def test_init__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: M
     assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
 
 
-def test_init__circuit_with_barrier__all_qubits(backend: RigettiQCSBackend, mocker: MockerFixture):
+def test_init__circuit_with_barrier(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = QuilCircuit(QuantumRegister(2, "q"), ClassicalRegister(2, "ro"))
     circuit.h(0)
     circuit.barrier()
@@ -156,82 +156,13 @@ def test_init__circuit_with_barrier__all_qubits(backend: RigettiQCSBackend, mock
             "qreg q[2];",
             "creg ro[2];",
             "h q[0];",
-            "#pragma PRESERVE_BLOCK;",
-            "#pragma END_PRESERVE_BLOCK;",
             "h q[0];",
             "measure q[0] -> ro[0];",
             "measure q[1] -> ro[1];",
         ]
     )
 
-    make_job(backend, circuit, qc)
-
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
-    qasm = program.out(calibrations=False).rstrip()
-    assert qasm == expected_qasm
-
-
-def test_init__circuit_with_barrier__all_qubits_by_qreg(backend: RigettiQCSBackend, mocker: MockerFixture):
-    qreg = QuantumRegister(2, "q")
-    circuit = QuilCircuit(qreg, ClassicalRegister(2, "ro"))
-    circuit.h(0)
-    circuit.barrier(qreg)
-    circuit.h(0)
-    circuit.measure([0, 1], [0, 1])
-    qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
-
-    expected_qasm = "\n".join(
-        [
-            "OPENQASM 2.0;",
-            'include "qelib1.inc";',
-            "qreg q[2];",
-            "creg ro[2];",
-            "h q[0];",
-            "#pragma PRESERVE_BLOCK;",
-            "#pragma END_PRESERVE_BLOCK;",
-            "h q[0];",
-            "measure q[0] -> ro[0];",
-            "measure q[1] -> ro[1];",
-        ]
-    )
-
-    make_job(backend, circuit, qc)
-
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
-    qasm = program.out(calibrations=False).rstrip()
-    assert qasm == expected_qasm
-
-
-def test_init__circuit_with_barrier__qubit_subset(backend: RigettiQCSBackend, mocker: MockerFixture):
-    circuit = QuilCircuit(QuantumRegister(2, "q"), ClassicalRegister(2, "ro"))
-    circuit.h(0)
-    circuit.barrier(0)
-    circuit.h(0)
-    circuit.measure([0, 1], [0, 1])
-    qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
-
-    expected_qasm = "\n".join(
-        [
-            "OPENQASM 2.0;",
-            'include "qelib1.inc";',
-            "qreg q[2];",
-            "creg ro[2];",
-            "h q[0];",
-            "h q[0];",
-            "measure q[0] -> ro[0];",
-            "measure q[1] -> ro[1];",
-        ]
-    )
-
-    with pytest.warns(
-        UserWarning,
-        match=(
-            "barriers not applied to all circuit qubits will be omitted during execution on a RigettiQCSBackend -- "
-            "apply barrier to all circuit qubits to preserve barrier effect"
-        ),
-    ):
+    with pytest.warns(UserWarning, match="barriers are currently omitted during execution on a RigettiQCSBackend"):
         make_job(backend, circuit, qc)
 
     program: Program = quil_to_native_quil_spy.call_args[0][0]
