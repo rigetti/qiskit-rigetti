@@ -15,7 +15,6 @@ This documentation supports light ☀️ and dark 🌙 modes and will automatica
    
 examples/GettingStarted.ipynb
 examples/QAOA.ipynb
-examples/QAOAFromPyQuil.ipynb
 ```
 
 ```{toctree}
