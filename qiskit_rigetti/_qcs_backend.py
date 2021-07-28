@@ -143,6 +143,10 @@ class RigettiQCSBackend(BackendV1):
         if not isinstance(run_input, list):
             run_input = [run_input]
 
+        bindings = options.get("parameter_binds") or []
+        if len(bindings) > 0:
+            run_input = [circuit.bind_parameters(binding) for circuit in run_input for binding in bindings]
+
         run_input = [_prepare_circuit(circuit) for circuit in run_input]
 
         if self._qc is None:
