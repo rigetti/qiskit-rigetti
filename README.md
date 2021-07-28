@@ -61,6 +61,11 @@ print("Result memory:", memory)
 print("Result counts:", counts)
 ```
 
+### Rigetti Quantum Cloud Services (QCS)
+
+Execution against a QPU requires a [reservation via QCS](https://docs.rigetti.com/qcs/guides/reserving-time-on-a-qpu).
+For more information on using QCS, see the [QCS documentation](https://docs.rigetti.com).
+
 ## Advanced
 
 ### Lifecycle Hooks
