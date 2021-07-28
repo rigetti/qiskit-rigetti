@@ -16,6 +16,7 @@
 import pytest
 from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.providers import JobStatus
+from qiskit.circuit import Parameter
 
 from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend
 
@@ -55,6 +56,51 @@ def test_run__multiple_circuits(backend: RigettiQCSBackend):
     assert result.results[1].header.name == circuit2.name
     assert result.results[1].shots == 10
     assert result.get_counts(1).keys() == {"000"}
+
+
+def test_run__parametric_circuits(backend: RigettiQCSBackend):
+    t = Parameter("t")
+
+    circuit1 = QuantumCircuit(QuantumRegister(1, "q"), ClassicalRegister(1, "ro"))
+    circuit1.rx(t, 0)
+    circuit1.measure([0], [0])
+
+    circuit2 = QuantumCircuit(QuantumRegister(1, "q"), ClassicalRegister(1, "ro"))
+    circuit2.ry(t, 0)
+    circuit2.measure([0], [0])
+
+    job = execute(
+        [circuit1, circuit2],
+        backend,
+        shots=1000,
+        parameter_binds=[
+            {t: 1.0},
+            {t: 2.0},
+        ],
+    )
+
+    assert job.backend() is backend
+    result = job.result()
+    assert job.status() == JobStatus.DONE
+
+    assert result.backend_name == backend.configuration().backend_name
+    assert len(result.results) == 4
+
+    assert result.results[0].header.name.startswith(f"{circuit1.name}-")
+    assert result.results[0].shots == 1000
+    assert result.get_counts(0).keys() == {"0", "1"}
+
+    assert result.results[1].header.name.startswith(f"{circuit1.name}-")
+    assert result.results[1].shots == 1000
+    assert result.get_counts(1).keys() == {"0", "1"}
+
+    assert result.results[2].header.name.startswith(f"{circuit2.name}-")
+    assert result.results[2].shots == 1000
+    assert result.get_counts(2).keys() == {"0", "1"}
+
+    assert result.results[3].header.name.startswith(f"{circuit2.name}-")
+    assert result.results[3].shots == 1000
+    assert result.get_counts(3).keys() == {"0", "1"}
 
 
 def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
