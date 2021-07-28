@@ -13,8 +13,9 @@ This documentation supports light ☀️ and dark 🌙 modes and will automatica
    :maxdepth: 1
    :caption: Examples
    
-examples/qaoa_qiskit.ipynb
-examples/qaoa_pyquil.ipynb
+examples/GettingStarted.ipynb
+examples/QAOA.ipynb
+examples/QAOAFromPyQuil.ipynb
 ```
 
 ```{toctree}
