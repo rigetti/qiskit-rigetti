@@ -113,23 +113,11 @@ class RigettiQCSJob(JobV1):
     def _handle_barriers(qasm: str, num_circuit_qubits: int) -> str:
         lines = []
         for line in qasm.splitlines():
-            if not line.startswith("barrier"):
-                lines.append(line)
+            if line.startswith("barrier"):
+                warnings.warn("barriers are currently omitted during execution on a RigettiQCSBackend")
                 continue
 
-            qubits = line[(len("barrier ")) :]
-            num_qubits = qubits.count(",") + 1
-            if num_qubits < num_circuit_qubits:
-                warnings.warn(
-                    "barriers not applied to all circuit qubits will be omitted during execution on a RigettiQCSBackend"
-                    " -- apply barrier to all circuit qubits to preserve barrier effect",
-                )
-                continue
-
-            lines += [
-                "#pragma PRESERVE_BLOCK;",
-                "#pragma END_PRESERVE_BLOCK;",
-            ]
+            lines.append(line)
         return "\n".join(lines)
 
     def result(self) -> Result:
