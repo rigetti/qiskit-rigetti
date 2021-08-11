@@ -1,8 +1,22 @@
 [![Tests](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml/badge.svg)](https://github.com/rigetti/qiskit-rigetti/actions/workflows/test.yml)
 [![Documentation Status](https://readthedocs.org/projects/qiskit-rigetti/badge/?version=latest)](https://qiskit-rigetti.readthedocs.io/en/latest/?badge=latest)
 [![pypi](https://img.shields.io/pypi/v/qiskit-rigetti.svg)](https://pypi.org/project/qiskit-rigetti/)
+[![Binder](https://mybinder.org/badge_logo.svg)][binder]
 
 # Rigetti Provider for Qiskit
+
+## Try It Out
+
+To try out this library, you can run example notebooks in a pre-made [binder][binder]. Alternately, you can run the following to build and run the image locally:
+
+```bash
+docker build -t qiskit-tutorials .
+docker run --rm -p 8888:8888 qiskit-tutorials
+```
+
+then click on the link that is displayed after the container starts up.
+
+[binder]: https://mybinder.org/v2/gh/rigetti/qiskit-rigetti/main?filepath=examples
 
 ## Pre-requisites
 
