@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/rigetti/qiskit-rigetti/releases/tag/v0.4.3)
+
+### New
+
+- Added binder tutorials image
+
+
 ## [0.4.2](https://github.com/rigetti/qiskit-rigetti/releases/tag/v0.4.2)
 
 ### Updates

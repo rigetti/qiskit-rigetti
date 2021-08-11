@@ -1,0 +1,4 @@
+qiskit-rigetti==0.4.*
+qiskit[visualization]
+notebook
+jupyterlab
