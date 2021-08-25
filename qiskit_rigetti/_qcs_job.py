@@ -177,7 +177,14 @@ class RigettiQCSJob(JobV1):
         raise NotImplementedError("Cancelling jobs is not supported")
 
     def status(self) -> JobStatus:
-        """Get the current status of this Job"""
+        """Get the current status of this Job
+
+        If this job was RUNNING when you called it, this function will block until the job is complete.
+        """
+
+        if self._status == JobStatus.RUNNING:
+            # Wait for results _now_ to finish running, otherwise consuming code might wait forever.
+            self.result()
 
         return self._status
 
