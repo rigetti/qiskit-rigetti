@@ -171,11 +171,13 @@ def test_init__circuit_with_barrier(backend: RigettiQCSBackend, mocker: MockerFi
 
 
 def test_result(job: RigettiQCSJob):
+    assert job._status == JobStatus.RUNNING
+    assert job.status() == JobStatus.DONE, "Checking status did not wait for completion"
+    assert job._status == JobStatus.DONE
+
     result = job.result()
 
     assert result.date == job.result().date, "Result not cached"
-
-    assert job.status() == JobStatus.DONE
 
     assert result.backend_name == "3q-qvm"
     assert result.job_id == job.job_id()

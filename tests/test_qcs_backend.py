@@ -27,7 +27,6 @@ def test_run(backend: RigettiQCSBackend):
     job = execute(circuit, backend, shots=10)
 
     assert job.backend() is backend
-    assert job.status() == JobStatus.RUNNING
     result = job.result()
     assert job.status() == JobStatus.DONE
     assert result.backend_name == backend.configuration().backend_name
