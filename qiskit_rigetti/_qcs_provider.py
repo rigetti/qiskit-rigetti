@@ -127,4 +127,5 @@ def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> 
         memory=False,
         max_shots=10000,
         coupling_map=[],
+        max_experiments=100,
     )
