@@ -21,7 +21,7 @@ from qcs_api_client.client import build_sync_client, QCSClientConfiguration
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
 
-from ._qcs_backend import RigettiQCSBackend
+from ._qcs_backend import RigettiQCSBackend, get_coupling_map_from_qc_topology
 
 
 class RigettiQCSProvider(ProviderV1):
@@ -96,8 +96,9 @@ class RigettiQCSProvider(ProviderV1):
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
         noisy_str = "-noisy" if noisy else ""
         name = f"{num_qubits}q{noisy_str}-qvm"
+
         configuration = _configuration(name, num_qubits, local=local, simulator=True)
-        return RigettiQCSBackend(
+        backend = RigettiQCSBackend(
             compiler_timeout=self._compiler_timeout,
             execution_timeout=self._execution_timeout,
             client_configuration=self._client_configuration,
@@ -105,6 +106,9 @@ class RigettiQCSProvider(ProviderV1):
             backend_configuration=configuration,
             provider=self,
         )
+        configuration.coupling_map = get_coupling_map_from_qc_topology(backend.qc)
+
+        return backend
 
     def _get_quantum_processors(self) -> Dict[str, Any]:
         with build_sync_client(configuration=self._client_configuration) as qcs_client:  # type: httpx.Client
