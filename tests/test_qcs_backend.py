@@ -159,6 +159,13 @@ def test_run__no_measurments(backend: RigettiQCSBackend):
         execute(circuit, backend, shots=10)
 
 
+def test_run__backend_coupling_map():
+    backend = RigettiQCSProvider().get_simulator(num_qubits=3)
+    assert backend.configuration().coupling_map
+    edges = list(backend.configuration().coupling_map.get_edges())
+    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(edges)
+
+
 @pytest.fixture
 def backend():
     return RigettiQCSProvider().get_simulator(num_qubits=3)

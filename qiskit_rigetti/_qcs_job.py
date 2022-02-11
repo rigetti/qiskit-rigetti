@@ -63,7 +63,7 @@ class RigettiQCSJob(JobV1):
             configuration: Configuration from parent backend
         """
         super().__init__(backend, job_id)
-        
+
         self._status = JobStatus.INITIALIZING
         self._circuits = circuits
         self._options = options
