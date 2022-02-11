@@ -102,6 +102,7 @@ class RigettiQCSBackend(BackendV1):
         engagement_manager: EngagementManager,
         backend_configuration: QasmBackendConfiguration,
         provider: Optional[Provider],
+        qc: QuantumComputer,
         **fields: Any,
     ) -> None:
         """
@@ -119,7 +120,7 @@ class RigettiQCSBackend(BackendV1):
         self._execution_timeout = execution_timeout
         self._client_configuration = client_configuration
         self._engagement_manager = engagement_manager
-        self._qc: Optional[QuantumComputer] = None
+        self._qc: Optional[QuantumComputer] = qc
 
     @classmethod
     def _default_options(cls) -> Options:

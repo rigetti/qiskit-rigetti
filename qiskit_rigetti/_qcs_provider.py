@@ -16,10 +16,12 @@
 from typing import Any, Optional, List, Dict, cast
 
 import httpx
-from pyquil.api import EngagementManager
+from pyquil import get_qc
+from pyquil.api import QuantumComputer, EngagementManager
 from qcs_api_client.client import build_sync_client, QCSClientConfiguration
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.transpiler import CouplingMap
 
 from ._qcs_backend import RigettiQCSBackend
 
@@ -96,7 +98,15 @@ class RigettiQCSProvider(ProviderV1):
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
         noisy_str = "-noisy" if noisy else ""
         name = f"{num_qubits}q{noisy_str}-qvm"
-        configuration = _configuration(name, num_qubits, local=local, simulator=True)
+        qc = get_qc(
+            name,
+            compiler_timeout=self._compiler_timeout,
+            execution_timeout=self._execution_timeout,
+            client_configuration=self._client_configuration,
+            engagement_manager=self._engagement_manager,
+        )
+        cm = _convert_coupling(qc)
+        configuration = _configuration(name, num_qubits, local=local, simulator=True, coupling_map=cm)
         return RigettiQCSBackend(
             compiler_timeout=self._compiler_timeout,
             execution_timeout=self._execution_timeout,
@@ -104,6 +114,7 @@ class RigettiQCSProvider(ProviderV1):
             engagement_manager=self._engagement_manager,
             backend_configuration=configuration,
             provider=self,
+            qc=qc,
         )
 
     def _get_quantum_processors(self) -> Dict[str, Any]:
@@ -113,7 +124,7 @@ class RigettiQCSProvider(ProviderV1):
             )
 
 
-def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> QasmBackendConfiguration:
+def _configuration(name: str, num_qubits: int, local: bool, simulator: bool, coupling_map: CouplingMap) -> QasmBackendConfiguration:
     return QasmBackendConfiguration(
         backend_name=name,
         backend_version="",
@@ -126,6 +137,12 @@ def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> 
         open_pulse=False,
         memory=False,
         max_shots=10000,
-        coupling_map=[],
+        coupling_map=coupling_map,
         max_experiments=8,
     )
+
+def _convert_coupling(qc: QuantumComputer) -> CouplingMap:
+    g = qc.quantum_processor.qubit_topology()
+    h = g.to_directed()
+    cm = h.edges()
+    return CouplingMap(cm)
