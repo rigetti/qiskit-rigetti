@@ -87,6 +87,10 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     return circuit
 
 
+class GetQuantumProcessorException(Exception):
+    pass
+
+
 class RigettiQCSBackend(BackendV1):
     """
     Class for representing a Rigetti backend, which may target a real QPU or a simulator.
@@ -139,13 +143,18 @@ class RigettiQCSBackend(BackendV1):
     def _load_qc_if_necessary(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()
         if self._qc is None:
-            self._qc = get_qc(
-                configuration.backend_name,
-                compiler_timeout=self._compiler_timeout,
-                execution_timeout=self._execution_timeout,
-                client_configuration=self._client_configuration,
-                engagement_manager=self._engagement_manager,
-            )
+            try:
+                self._qc = get_qc(
+                    configuration.backend_name,
+                    compiler_timeout=self._compiler_timeout,
+                    execution_timeout=self._execution_timeout,
+                    client_configuration=self._client_configuration,
+                    engagement_manager=self._engagement_manager,
+                )
+            except Exception as e:
+                raise GetQuantumProcessorException(
+                    f"failed to retrieve quantum processor {configuration.backend_name}"
+                ) from e
 
     def _set_coupling_map_based_on_qc_topology(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()

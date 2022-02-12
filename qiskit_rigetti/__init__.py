@@ -16,7 +16,7 @@
 import sys
 
 from ._quil_circuit import QuilCircuit
-from ._qcs_backend import RigettiQCSBackend
+from ._qcs_backend import RigettiQCSBackend, GetQuantumProcessorException
 from ._qcs_job import RigettiQCSJob
 from ._qcs_provider import RigettiQCSProvider
 

@@ -16,7 +16,6 @@
 from typing import Any, Optional, List, Dict, cast
 
 import httpx
-from pyquil import get_qc
 from pyquil.api import EngagementManager
 from qcs_api_client.client import build_sync_client, QCSClientConfiguration
 from qiskit.providers import ProviderV1
@@ -97,15 +96,8 @@ class RigettiQCSProvider(ProviderV1):
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
         noisy_str = "-noisy" if noisy else ""
         name = f"{num_qubits}q{noisy_str}-qvm"
-        qc = get_qc(
-            name,
-            compiler_timeout=self._compiler_timeout,
-            execution_timeout=self._execution_timeout,
-            client_configuration=self._client_configuration,
-            engagement_manager=self._engagement_manager,
-        )
+
         configuration = _configuration(name, num_qubits, local=local, simulator=True)
-        configuration.coupling_map = get_coupling_map_from_qc_topology(qc)
         backend = RigettiQCSBackend(
             compiler_timeout=self._compiler_timeout,
             execution_timeout=self._execution_timeout,
@@ -113,8 +105,8 @@ class RigettiQCSProvider(ProviderV1):
             engagement_manager=self._engagement_manager,
             backend_configuration=configuration,
             provider=self,
-            qc=qc,
         )
+        configuration.coupling_map = get_coupling_map_from_qc_topology(backend.qc)
 
         return backend
 
