@@ -15,31 +15,30 @@
 ##############################################################################
 from pytest_httpx import HTTPXMock
 import pytest
+import os
 
 from qiskit_rigetti import RigettiQCSProvider, GetQuantumProcessorException
 
 
 def test_get_simulator(monkeypatch):
-    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
-
     backend = RigettiQCSProvider().get_simulator(num_qubits=42)
 
     assert backend.name() == "42q-qvm"
     assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
+    assert (
+        "qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "127.0.0.1")
+    ) == backend.configuration().local
+    assert backend.configuration().simulator
+    assert backend.configuration().coupling_map
 
 
 def test_get_simulator__noisy(monkeypatch):
-    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
-
     backend = RigettiQCSProvider().get_simulator(num_qubits=42, noisy=True)
 
     assert backend.name() == "42q-noisy-qvm"
     assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
-
+    assert ("qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "")) == backend.configuration().local
+    assert backend.configuration().simulator
     assert backend.configuration().coupling_map
 
 
