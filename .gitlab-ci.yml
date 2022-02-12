@@ -22,18 +22,11 @@ cache:
   - poetry run python -m ensurepip --upgrade
   - poetry install -vv
 
-.install-dephell: &install-dephell # Install dephell to auto-generate setup.py
-  - curl -L https://raw.githubusercontent.com/rigetti/dephell/master/install.py | python
-
 .install-npm: &install-npm
   - curl -sL https://deb.nodesource.com/setup_12.x | bash -
   - apt-get update
   - apt-get install -f -y nodejs
   - npm i
-
-.publish-pypi-public: &publish-pypi-public
-  - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
-  - poetry publish --build
 
 Checks:
   stage: test
@@ -70,17 +63,35 @@ Test Unit (3.9):
   extends: .unit-test
   image: python:3.9
 
-PyPi Publish Release:
+.pypi-publish:
   stage: deploy
-  script:
-    - *install-dependencies
-    - *install-dephell
+  before_script:
+    - . scripts/ci_install_deps
     - *install-npm
+  script:
     # This performs the semantic-release configured in package.json.
-    # Depending on the config, this may add a tag and then push a release to GitHub.
-    - npx semantic-release
+    # Depending on the config, this may add a tag and then publish a GitLab/GitHub release.
+    - npx semantic-release --debug
+    - poetry version -s >> version_tag
     # This reads the tag chosen by semantic-release
-    - *publish-pypi-public
+    - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
+    - poetry publish --build
+  artifacts:
+    paths:
+      - version_tag
+    when: always
+
+# PUBLISH RC
+# -------------------------------
+
+PyPI Publish (RC):
+  extends: .pypi-publish
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "rc"'
+      when: manual
+
+PyPI Publish (Final):
+  extends: .pypi-publish
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-      when: on_success
+      when: manual

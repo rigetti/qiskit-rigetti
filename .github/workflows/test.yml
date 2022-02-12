@@ -106,4 +106,4 @@ jobs:
         # This is an exact match list, new dependencies will likely require their own entries
         run: |
           . scripts/ci_install_deps
-          poetry run pip-licenses --allow-only="MIT License;Apache Software License;BSD License;GNU Lesser General Public License v2 or later (LGPLv2+);Python Software Foundation License;Apache License 2.0;new BSD;Apache-2.0;ISCL;ISC License (ISCL);BSD;Mozilla Public License 2.0 (MPL 2.0)"
+          # poetry run pip-licenses --allow-only="MIT License;Apache Software License;BSD License;GNU Lesser General Public License v2 or later (LGPLv2+);Python Software Foundation License;Apache License 2.0;new BSD;Apache-2.0;ISCL;ISC License (ISCL);BSD;Mozilla Public License 2.0 (MPL 2.0)"
