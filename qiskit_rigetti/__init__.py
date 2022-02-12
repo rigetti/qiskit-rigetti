@@ -25,4 +25,4 @@ if sys.version_info < (3, 8):
 else:
     from importlib.metadata import version  # pragma: nocover
 
-__version__ = version(__package__)  # pragma: nocover
+__version__ = version(__package__)  # type: ignore
