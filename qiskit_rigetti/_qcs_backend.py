@@ -13,7 +13,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Optional, Any, Union, List
+from typing import Optional, Any, Union, List, cast, Tuple
 from uuid import uuid4
 
 from pyquil import get_qc
@@ -23,8 +23,6 @@ from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.transpiler import CouplingMap
-
 from ._qcs_job import RigettiQCSJob
 
 
@@ -133,7 +131,12 @@ class RigettiQCSBackend(BackendV1):
     def _default_options(cls) -> Options:
         return Options(shots=None)
 
-    def _load_qc_if_necessary(self):
+    @property
+    def qc(self) -> QuantumComputer:
+        self._load_qc_if_necessary()
+        return cast(QuantumComputer, self._qc)
+
+    def _load_qc_if_necessary(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()
         if self._qc is None:
             self._qc = get_qc(
@@ -144,10 +147,9 @@ class RigettiQCSBackend(BackendV1):
                 engagement_manager=self._engagement_manager,
             )
 
-    def _set_coupling_map_based_on_qc_topology(self):
-        self._load_qc_if_necessary()
+    def _set_coupling_map_based_on_qc_topology(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()
-        configuration.coupling_map = get_coupling_map_from_qc_topology(self._qc)
+        configuration.coupling_map = get_coupling_map_from_qc_topology(self.qc)
 
     def run(
         self,
@@ -173,7 +175,6 @@ class RigettiQCSBackend(BackendV1):
 
         run_input = [_prepare_circuit(circuit) for circuit in run_input]
 
-        self._load_qc_if_necessary()
         configuration: QasmBackendConfiguration = self.configuration()
         if not configuration.coupling_map and self._auto_set_coupling_map:
             self._set_coupling_map_based_on_qc_topology()
@@ -182,14 +183,11 @@ class RigettiQCSBackend(BackendV1):
             job_id=str(uuid4()),
             circuits=run_input,
             options=options,
-            qc=self._qc,
+            qc=self.qc,
             backend=self,
             configuration=self.configuration(),
         )
 
 
-def get_coupling_map_from_qc_topology(qc: QuantumComputer) -> CouplingMap:
-    g = qc.quantum_processor.qubit_topology()
-    h = g.to_directed()
-    cm = h.edges()
-    return CouplingMap(cm)
+def get_coupling_map_from_qc_topology(qc: QuantumComputer) -> List[Tuple[int, int]]:
+    return cast(List[Tuple[int, int]], qc.quantum_processor.qubit_topology().to_directed().edges())

@@ -109,7 +109,6 @@ class RigettiQCSJob(JobV1):
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
         result = cast(Response, self._qc.qam.execute(executable))
         # store the remote job id here
-        super()._job_id = result.job_id
         return result
 
     @staticmethod
