@@ -83,9 +83,7 @@ Test Unit (3.9):
 PyPi Publish Release Candidate:
   extends: .pypi-publish
   rules:
-    - if: '$CI_COMMIT_BRANCH == "update_qiskit_and_coupling_map_init"'
-      when: manual
-    - if: '$CI_COMMIT_BRANCH == "rc"'
+    - if: '$CI_COMMIT_BRANCH =~ /^rc\//'
       when: manual
 
 PyPi Publish Release:
