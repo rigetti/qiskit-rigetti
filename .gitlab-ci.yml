@@ -72,7 +72,6 @@ Test Unit (3.9):
     # This performs the semantic-release configured in package.json.
     # Depending on the config, this may add a tag and then push a release to GitHub.
     - npx semantic-release --debug
-    # This reads the tag chosen by semantic-release
     - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
     - poetry publish --build
 

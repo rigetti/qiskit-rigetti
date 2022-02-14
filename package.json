@@ -10,7 +10,7 @@
     "semantic-release": "^17.1.1"
   },
   "release": {
-    "branches": ["main", {"name": "^rc\/", "prerelease":  true}],
+    "branches": ["main", {"name": "^rc\/", "prerelease":  "rc"}],
     "plugins": [
       ["@semantic-release/commit-analyzer", {
         "preset": "eslint",
