@@ -22,9 +22,6 @@ cache:
   - poetry run python -m ensurepip --upgrade
   - poetry install -vv
 
-.install-dephell: &install-dephell # Install dephell to auto-generate setup.py
-  - curl -L https://raw.githubusercontent.com/rigetti/dephell/master/install.py | python
-
 .install-npm: &install-npm
   - curl -sL https://deb.nodesource.com/setup_12.x | bash -
   - apt-get update
@@ -70,7 +67,6 @@ Test Unit (3.9):
   stage: deploy
   before_script:
     - *install-dependencies
-    - *install-dephell
     - *install-npm
   script:
     # This performs the semantic-release configured in package.json.
