@@ -79,6 +79,7 @@ Test Unit (3.9):
   artifacts:
     paths:
       - version_tag
+    when: always
 
 # PUBLISH RC
 # -------------------------------
