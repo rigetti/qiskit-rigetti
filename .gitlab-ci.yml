@@ -66,23 +66,31 @@ Test Unit (3.9):
 .pypi-publish:
   stage: deploy
   before_script:
-    - *install-dependencies
+    - . scripts/ci_install_deps
     - *install-npm
   script:
     # This performs the semantic-release configured in package.json.
-    # Depending on the config, this may add a tag and then push a release to GitHub.
+    # Depending on the config, this may add a tag and then publish a GitLab/GitHub release.
     - npx semantic-release --debug
+    - poetry version -s >> version_tag
+    # This reads the tag chosen by semantic-release
     - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
     - poetry publish --build
+  artifacts:
+    paths:
+      - version_tag
 
-PyPi Publish Release Candidate:
+# PUBLISH RC
+# -------------------------------
+
+PyPI Publish (RC):
   extends: .pypi-publish
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^rc\//'
       when: manual
 
-PyPi Publish Release:
+PyPI Publish (Final):
   extends: .pypi-publish
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-      when: on_success
+      when: manual

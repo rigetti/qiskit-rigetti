@@ -10,7 +10,7 @@
     "semantic-release": "^17.1.1"
   },
   "release": {
-    "branches": ["main", {"name": "^rc\/.*", "prerelease":  "rc"}],
+    "branches": ["main", {"name": "rc/update_qiskit_and_coupling_map_init", "channel":  "rc", "prerelease":  true}],
     "plugins": [
       ["@semantic-release/commit-analyzer", {
         "preset": "eslint",
