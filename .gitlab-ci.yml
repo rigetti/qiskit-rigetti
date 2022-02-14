@@ -31,10 +31,6 @@ cache:
   - apt-get install -f -y nodejs
   - npm i
 
-.publish-pypi-public: &publish-pypi-public
-  - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
-  - poetry publish --build
-
 Checks:
   stage: test
   script:
@@ -70,17 +66,28 @@ Test Unit (3.9):
   extends: .unit-test
   image: python:3.9
 
-PyPi Publish Release:
+.pypi-publish:
   stage: deploy
-  script:
+  before_script:
     - *install-dependencies
     - *install-dephell
     - *install-npm
+  script:
     # This performs the semantic-release configured in package.json.
     # Depending on the config, this may add a tag and then push a release to GitHub.
-    - npx semantic-release
+    - npx semantic-release --debug
     # This reads the tag chosen by semantic-release
-    - *publish-pypi-public
+    - poetry config http-basic.pypi $PUBLIC_PYPI_USERNAME $PUBLIC_PYPI_PASSWORD
+    - poetry publish --build
+
+PyPi Publish Release Candidate:
+  extends: .pypi-publish
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "rc"'
+      when: manual
+
+PyPi Publish Release:
+  extends: .pypi-publish
   rules:
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
       when: on_success
