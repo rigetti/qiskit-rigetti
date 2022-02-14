@@ -86,7 +86,7 @@ Test Unit (3.9):
 PyPI Publish (RC):
   extends: .pypi-publish
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^rc\//'
+    - if: '$CI_COMMIT_BRANCH == "rc"'
       when: manual
 
 PyPI Publish (Final):
