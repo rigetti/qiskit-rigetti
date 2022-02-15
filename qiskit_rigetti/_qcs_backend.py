@@ -15,6 +15,7 @@
 ##############################################################################
 from typing import Optional, Any, Union, List, cast, Tuple
 from uuid import uuid4
+import copy
 
 from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
@@ -82,7 +83,10 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     """
     Returns a prepared copy of the circuit for execution on the QCS Backend.
     """
-    circuit = circuit.copy()
+    if hasattr(circuit, "copy"):
+        circuit = circuit.copy()
+    else:
+        circuit = copy.deepcopy(circuit)
     _prepare_readouts(circuit)
     return circuit
 

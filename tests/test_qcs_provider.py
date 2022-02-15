@@ -56,7 +56,7 @@ def test_run__backend_coupling_map():
         ("http://127.0.0.1:9999/qvm",),
     ],
 )
-def test_get_simulator__remote(monkeypatch, qvm_url):
+def test_get_simulator__remote(qvm_url, monkeypatch):
     monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", qvm_url)
 
     with pytest.raises(GetQuantumProcessorException):
