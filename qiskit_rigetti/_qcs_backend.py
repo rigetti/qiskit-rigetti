@@ -24,7 +24,6 @@ from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
-from qiskit.transpiler import CouplingMap
 from ._qcs_job import RigettiQCSJob
 
 
