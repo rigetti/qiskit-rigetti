@@ -25,8 +25,11 @@ def test_get_simulator(monkeypatch):
 
     assert backend.name() == "42q-qvm"
     assert backend.configuration().num_qubits == 42
+    # The default QVM url is 127.0.0.1, but Gitlab CI may use a docker service url.
+    # Below we assert that the local value on the configuration is True/False depending
+    # on the `QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL` set during the test run.
     assert (
-        "qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "127.0.0.1")
+        "http://qvm:5000" != os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://127.0.0.1:5000")
     ) == backend.configuration().local
     assert backend.configuration().simulator
     assert backend.configuration().coupling_map

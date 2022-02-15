@@ -84,10 +84,7 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     """
     Returns a prepared copy of the circuit for execution on the QCS Backend.
     """
-    if hasattr(circuit, "copy"):
-        circuit = circuit.copy()
-    else:
-        circuit = copy.deepcopy(circuit)
+    circuit = circuit.copy()
     _prepare_readouts(circuit)
     return circuit
 
