@@ -107,9 +107,7 @@ class RigettiQCSJob(JobV1):
         executable = self._qc.compiler.native_quil_to_executable(program)
 
         # typing: QuantumComputer's inner QAM is generic, so we set the expected type here
-        result = cast(Response, self._qc.qam.execute(executable))
-        # store the remote job id here
-        return result
+        return cast(Response, self._qc.qam.execute(executable))
 
     @staticmethod
     def _handle_barriers(qasm: str, num_circuit_qubits: int) -> str:
