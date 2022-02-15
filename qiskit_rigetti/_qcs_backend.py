@@ -24,6 +24,7 @@ from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.transpiler import CouplingMap
 from ._qcs_job import RigettiQCSJob
 
 
@@ -83,10 +84,7 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     """
     Returns a prepared copy of the circuit for execution on the QCS Backend.
     """
-    if hasattr(circuit, "copy"):
-        circuit = circuit.copy()
-    else:
-        circuit = copy.deepcopy(circuit)
+    circuit = circuit.copy()
     _prepare_readouts(circuit)
     return circuit
 
@@ -144,6 +142,11 @@ class RigettiQCSBackend(BackendV1):
         self._load_qc_if_necessary()
         return cast(QuantumComputer, self._qc)
 
+    @property
+    def coupling_map(self) -> CouplingMap:
+        self._set_coupling_map_based_on_qc_topology_if_necessary()
+        return CouplingMap(self.configuration().coupling_map)
+
     def _load_qc_if_necessary(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()
         if self._qc is None:
@@ -160,9 +163,10 @@ class RigettiQCSBackend(BackendV1):
                     f"failed to retrieve quantum processor {configuration.backend_name}"
                 ) from e
 
-    def _set_coupling_map_based_on_qc_topology(self) -> None:
+    def _set_coupling_map_based_on_qc_topology_if_necessary(self) -> None:
         configuration: QasmBackendConfiguration = self.configuration()
-        configuration.coupling_map = get_coupling_map_from_qc_topology(self.qc)
+        if not configuration.coupling_map and self._auto_set_coupling_map:
+            configuration.coupling_map = get_coupling_map_from_qc_topology(self.qc)
 
     def run(
         self,
@@ -188,9 +192,7 @@ class RigettiQCSBackend(BackendV1):
 
         run_input = [_prepare_circuit(circuit) for circuit in run_input]
 
-        configuration: QasmBackendConfiguration = self.configuration()
-        if not configuration.coupling_map and self._auto_set_coupling_map:
-            self._set_coupling_map_based_on_qc_topology()
+        self._set_coupling_map_based_on_qc_topology_if_necessary()
 
         return RigettiQCSJob(
             job_id=str(uuid4()),
