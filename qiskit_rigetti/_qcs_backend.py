@@ -15,7 +15,6 @@
 ##############################################################################
 from typing import Optional, Any, Union, List, cast, Tuple
 from uuid import uuid4
-import copy
 
 from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
@@ -119,7 +118,7 @@ class RigettiQCSBackend(BackendV1):
             engagement_manager: QPU engagement manager.
             backend_configuration: Backend configuration.
             provider: Parent provider.
-            qc: Parent provider.
+            qc: The `QuantumComputer` this backend represents to Qiskit.
             auto_set_coupling_map: When `True`, this will set the `QasmBackendConfiguration`
                 `coupling_map` based on the `QuantumComputer` topology if the existing
                 `coupling_map` is empty.
