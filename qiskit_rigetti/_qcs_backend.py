@@ -13,8 +13,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Optional, Any, Union, List, cast, Tuple
+from typing import Optional, Any, Union, List, cast
 from uuid import uuid4
+import copy
 
 from pyquil import get_qc
 from pyquil.api import QuantumComputer, EngagementManager
@@ -23,6 +24,7 @@ from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
+from qiskit.transpiler import CouplingMap
 from ._qcs_job import RigettiQCSJob
 
 
@@ -82,7 +84,10 @@ def _prepare_circuit(circuit: QuantumCircuit) -> QuantumCircuit:
     """
     Returns a prepared copy of the circuit for execution on the QCS Backend.
     """
-    circuit = circuit.copy()
+    if hasattr(circuit, 'copy'):
+        circuit = circuit.copy()
+    else:
+        circuit = copy.deepcopy(circuit)
     _prepare_readouts(circuit)
     return circuit
 
@@ -198,5 +203,5 @@ class RigettiQCSBackend(BackendV1):
         )
 
 
-def get_coupling_map_from_qc_topology(qc: QuantumComputer) -> List[Tuple[int, int]]:
-    return cast(List[Tuple[int, int]], qc.quantum_processor.qubit_topology().to_directed().edges())
+def get_coupling_map_from_qc_topology(qc: QuantumComputer) -> CouplingMap:
+    return CouplingMap(qc.quantum_processor.qubit_topology().to_directed().edges())

@@ -24,7 +24,7 @@ from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend
 def test_run(backend: RigettiQCSBackend):
     circuit = make_circuit()
 
-    job = execute(circuit, backend, shots=10)
+    job = execute(circuit, backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
     assert job.backend() is backend
     result = job.result()
@@ -39,7 +39,7 @@ def test_run__multiple_circuits(backend: RigettiQCSBackend):
     circuit1 = make_circuit(num_qubits=2)
     circuit2 = make_circuit(num_qubits=3)
 
-    job = execute([circuit1, circuit2], backend, shots=10)
+    job = execute([circuit1, circuit2], backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
     assert job.backend() is backend
     result = job.result()
@@ -76,6 +76,7 @@ def test_run__parametric_circuits(backend: RigettiQCSBackend):
             {t: 1.0},
             {t: 2.0},
         ],
+        coupling_map=backend.configuration().coupling_map,
     )
 
     assert job.backend() is backend
@@ -107,7 +108,7 @@ def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
     circuit.measure([0, 1], [0, 1])
     qasm_before = circuit.qasm()
 
-    job = execute(circuit, backend, shots=10)
+    job = execute(circuit, backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
 
@@ -126,7 +127,7 @@ def test_run__multiple_registers__single_readout(backend: RigettiQCSBackend):
     circuit.measure([0, 1], [readout_reg[0], readout_reg[1]])
     qasm_before = circuit.qasm()
 
-    job = execute(circuit, backend, shots=10)
+    job = execute(circuit, backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
 
@@ -147,7 +148,7 @@ def test_run__multiple_readout_registers(backend: RigettiQCSBackend):
     circuit.measure([qr[0], qr[1]], [cr[0], cr2[0]])
 
     with pytest.raises(RuntimeError, match="Multiple readout registers are unsupported on QCSBackend; found c, c2"):
-        execute(circuit, backend, shots=10)
+        execute(circuit, backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
 
 def test_run__no_measurments(backend: RigettiQCSBackend):
@@ -156,19 +157,19 @@ def test_run__no_measurments(backend: RigettiQCSBackend):
     circuit = QuantumCircuit(qr, cr)
 
     with pytest.raises(RuntimeError, match="Circuit has no measurements"):
-        execute(circuit, backend, shots=10)
+        execute(circuit, backend, shots=10, coupling_map=backend.configuration().coupling_map)
 
 
 def test_run__backend_coupling_map():
     backend = RigettiQCSProvider().get_simulator(num_qubits=3)
     assert backend.configuration().coupling_map
-    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(backend.configuration().coupling_map)
+    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(list(backend.configuration().coupling_map))
 
 
 def test_run__backend_coupling_map():
     backend = RigettiQCSProvider().get_simulator(num_qubits=3)
     assert backend.configuration().coupling_map
-    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(backend.configuration().coupling_map)
+    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(list(backend.configuration().coupling_map))
 
 
 @pytest.fixture
