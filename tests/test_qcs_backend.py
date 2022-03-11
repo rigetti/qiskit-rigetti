@@ -14,11 +14,11 @@
 #    limitations under the License.
 ##############################################################################
 import pytest
-from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.providers import JobStatus
+from qcs_api_client.util.errors import QCSHTTPStatusError
+from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister, execute
 from qiskit.circuit import Parameter
-
-from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend
+from qiskit.providers import JobStatus
+from qiskit_rigetti import RigettiQCSBackend, RigettiQCSProvider
 
 
 def test_run(backend: RigettiQCSBackend):
@@ -157,6 +157,22 @@ def test_run__no_measurments(backend: RigettiQCSBackend):
 
     with pytest.raises(RuntimeError, match="Circuit has no measurements"):
         execute(circuit, backend, shots=10)
+
+
+def test_error_is_raised_if_neither_backend_name_or_qubits_specified(monkeypatch):
+    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
+
+    backend = RigettiQCSProvider().get_simulator()
+    with pytest.raises(QCSHTTPStatusError):
+        backend.run(make_circuit(num_qubits=1))
+
+
+def test_error_is_raised_if_backend_simulator_name_doesnt_exist(monkeypatch):
+    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
+
+    backend = RigettiQCSProvider().get_simulator(name="non-existent")
+    with pytest.raises(QCSHTTPStatusError):
+        backend.run(make_circuit(num_qubits=1))
 
 
 @pytest.fixture

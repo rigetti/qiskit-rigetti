@@ -18,13 +18,22 @@ from pytest_httpx import HTTPXMock
 from qiskit_rigetti import RigettiQCSProvider
 
 
-def test_get_simulator(monkeypatch):
+def test_get_simulator_by_num_qubits(monkeypatch):
     monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
 
     backend = RigettiQCSProvider().get_simulator(num_qubits=42)
 
     assert backend.name() == "42q-qvm"
     assert backend.configuration().num_qubits == 42
+    assert backend.configuration().local is True
+    assert backend.configuration().simulator is True
+
+def test_get_simulator_by_name(monkeypatch):
+    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
+
+    backend = RigettiQCSProvider().get_simulator(name="Aspen-11-qvm")
+
+    assert backend.name() == "Aspen-11-qvm"
     assert backend.configuration().local is True
     assert backend.configuration().simulator is True
 

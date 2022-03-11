@@ -82,7 +82,7 @@ class RigettiQCSProvider(ProviderV1):
             return self._backends
         return [b for b in self._backends if b.name() == name]
 
-    def get_simulator(self, *, num_qubits: int, noisy: bool = False) -> RigettiQCSBackend:
+    def get_simulator(self, *, name: str = "", num_qubits: int = None, noisy: bool = False) -> RigettiQCSBackend:
         """
         Get a simulator (QVM).
 
@@ -95,7 +95,8 @@ class RigettiQCSProvider(ProviderV1):
         qvm_url = self._client_configuration.profile.applications.pyquil.qvm_url
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
         noisy_str = "-noisy" if noisy else ""
-        name = f"{num_qubits}q{noisy_str}-qvm"
+        if not name:
+            name = f"{num_qubits}q{noisy_str}-qvm"
         configuration = _configuration(name, num_qubits, local=local, simulator=True)
         return RigettiQCSBackend(
             compiler_timeout=self._compiler_timeout,
