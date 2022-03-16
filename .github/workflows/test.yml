@@ -8,42 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-style:
-    name: Check style
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.7'
-      - uses: actions/cache@v2
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Check style
-        run: |
-          . scripts/ci_install_deps
-          poetry run make check-style
-
-  check-types:
-    name: Check types
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.7'
-      - uses: actions/cache@v2
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Check types
-        run: |
-          . scripts/ci_install_deps
-          poetry run make check-types
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -67,43 +31,66 @@ jobs:
           docker run --rm -itd -p 5000:5000 rigetti/qvm -S
           poetry run make test
 
-  docs-smoke-test:
-    name: Docs Smoke Test
+  black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.7
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.7'
-      - uses: actions/cache@v2
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Build Docs
-        env:
-          SPHINXOPTS: "-W"
-        run: |
-          sudo apt update
-          sudo apt install pandoc
-          . scripts/ci_install_deps "-E docs"
-          poetry run make docs
+      - name: Installing dependencies
+        run: pip install tox
+      - name: Running mypy
+        run: tox -e black
 
-  check-licenses:
-    name: Check Dependency Licenses
+  flake8:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
-      - uses: actions/cache@v2
+          python-version: 3.7
+      - run: pip install tox
+      - name: Running black
+        run: tox -e flake8
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Check Licenses
-        # This is an exact match list, new dependencies will likely require their own entries
-        run: |
-          . scripts/ci_install_deps
-          poetry run pip-licenses --allow-only="MIT License;Apache Software License;BSD License;GNU Lesser General Public License v2 or later (LGPLv2+);Python Software Foundation License;Apache License 2.0;new BSD;Apache-2.0;ISCL;ISC License (ISCL);BSD;Mozilla Public License 2.0 (MPL 2.0)"
+          python-version: '3.7'
+      - name: Installing dependencies
+        run: pip install tox
+      - name: Running mypy
+        run: tox -e mypy
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Installing dependencies
+        run: pip install tox
+      - name: Running mypy
+        run: tox -e docs
+
+  licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - name: Installing dependencies
+        run: pip install tox
+      - name: Running mypy
+        run: tox -e licenses
