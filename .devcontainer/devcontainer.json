@@ -1,0 +1,42 @@
+{
+	"name": "qiskit-rigetti",
+	"build": {
+		"dockerfile": "devcontainer.dockerfile",
+		"context": "..",
+		"args": {
+			"USERNAME" :  "${localEnv:USERNAME}"
+		},
+	},
+	"image": "qiskit-rigetti",
+	"workspaceMount": "src=${localWorkspaceFolder},dst=/qiskit_rigetti,type=bind",
+	"workspaceFolder": "/qiskit_rigetti",
+	"runArgs": [
+		"--interactive",
+		"--tty",
+		"--rm",
+		"--name", "qiskit-rigetti",
+		"--volume", "${env:HOME}/.ssh:${env:HOME}/.ssh:ro"
+	],
+	"settings": {
+		"terminal.integrated.profiles.linux": {
+			"bash": {
+				"path": "/bin/bash",
+				"icon": "terminal-bash"
+			}
+		},
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"python.linting.mypyEnabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.linting.enabled": true,
+		"files.trimTrailingWhitespace": true,
+		"files.trimFinalNewlines": true,
+		"files.insertFinalNewline": true,
+		"workbench.editor.enablePreview": true,
+		"autoDocstring.docstringFormat": "numpy"
+	},
+	"extensions": [
+		"ms-python.python",
+		"njpwerner.autodocstring",
+	],
+	"overrideCommand": false
+}
