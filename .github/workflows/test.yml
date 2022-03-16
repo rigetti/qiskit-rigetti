@@ -31,7 +31,7 @@ jobs:
           docker run --rm -itd -p 5000:5000 rigetti/qvm -S
           poetry run make test
 
-  black:
+  check-style:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,19 +42,7 @@ jobs:
       - name: Installing dependencies
         run: pip install tox
       - name: Running mypy
-        run: tox -e black
-
-  flake8:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-      - run: pip install tox
-      - name: Running black
-        run: tox -e flake8
+        run: tox -e check-black flake8
 
   mypy:
     runs-on: ubuntu-latest
