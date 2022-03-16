@@ -40,8 +40,9 @@ pytest-mock = { version = "^3.6.1", optional = true }
 pip-licenses = { version = "^3.5.1", optional = true }
 
 [tool.poetry.extras]
-test = ["pytest", "pytest-cov", "pytest-httpx", "pytest-mock", "black", "flake8", "mypy", "pip-licenses"]
+test = ["pytest", "pytest-cov", "pytest-httpx", "pytest-mock", "black", "flake8", "mypy"]
 docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild", "nbsphinx", "ipython"]
+licenses = ["pip-licenses"]
 
 [tool.black]
 line-length = 120
