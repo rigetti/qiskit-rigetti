@@ -9,7 +9,7 @@ ENV POETRY_HOME=/opt/poetry
 
 # Install OS requirements
 RUN apt update && \
-    apt install -y bash-completion curl git
+    apt install -y bash-completion curl git sudo
 
 # Install python requirements
 RUN pip install tox && \
@@ -17,9 +17,11 @@ RUN pip install tox && \
 
 ENV PATH=${POETRY_HOME}/bin:$PATH
 
-RUN useradd --uid 1000 $USERNAME && \
+RUN useradd --uid 1000 -m $USERNAME && \
     mkdir -p /home/${USERNAME}/.vscode-server /home/${USERNAME}/.vscode-server-insiders && \
-    (chown ${USER_UID}:${USER_GID} /home/${USERNAME}/.vscode-server*)
+    (chown ${USER_UID}:${USER_GID} /home/${USERNAME}/.vscode-server*) && \
+    echo ${USERNAME} ALL=\(root\) NOPASSWD:ALL >> /etc/sudoers.d/${USERNAME} && \
+    chmod 0440 /etc/sudoers.d/${USERNAME}
 
 USER ${USERNAME}
 WORKDIR /qiskit_rigetti
