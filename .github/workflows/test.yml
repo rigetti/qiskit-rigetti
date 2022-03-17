@@ -9,7 +9,6 @@ on:
 
 jobs:
   test:
-    name: Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,16 +19,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          path: .venv
-          key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Test (Python ${{ matrix.python-version }})
-        run: |
-          . scripts/ci_install_deps
-          docker run --rm -itd -p 5555:5555 --entrypoint bash rigetti/quilc -c "curl -L -o qelib1.inc https://raw.githubusercontent.com/Qiskit/qiskit-terra/0.16.2/qiskit/qasm/libs/qelib1.inc && ./quilc -S -P"
-          docker run --rm -itd -p 5000:5000 rigetti/qvm -S
-          poetry run make test
+      - name: Test Python ${{ matrix.python-version }}
+        run: tox -e rigetti-quilc, rigetti-qvm, $(echo ${{ matrix.python-version }} | sed -e 's/\.//g')
 
   check-style:
     runs-on: ubuntu-latest
