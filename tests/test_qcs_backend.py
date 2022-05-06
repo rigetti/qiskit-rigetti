@@ -14,11 +14,13 @@
 #    limitations under the License.
 ##############################################################################
 import pytest
-from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit import execute, QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
 from qiskit.providers import JobStatus
-from qiskit.circuit import Parameter
+from qiskit.circuit import Parameter, Qubit
+from qiskit.circuit.library import CZGate
 
-from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend
+from qiskit_rigetti import RigettiQCSProvider, RigettiQCSBackend, QuilCircuit
+from qiskit_rigetti.gates import XYGate
 
 
 def test_run(backend: RigettiQCSBackend):
@@ -160,6 +162,26 @@ def test_run__backend_coupling_map():
     assert backend.configuration().coupling_map
     assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(backend.configuration().coupling_map)
     assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(backend.coupling_map.get_edges())
+
+
+def test_decomposition(backend: RigettiQCSBackend):
+    """Test that CZGate remains after the transpile."""
+    circuit = QuilCircuit(2, 2)
+    circuit.cz(0, 1)
+    circuit.measure_all()
+
+    circuit = transpile(circuit, backend=backend)
+    job = execute(circuit, backend, shots=1)
+    job.result()  # Just make sure nothing throws an exception so the circuit is valid
+
+    assert job.status() == JobStatus.DONE
+    assert len(circuit.data) == 4  # CZ, BARRIER, MEASURE, MEASURE
+    assert circuit.data[0] == (
+        CZGate(),
+        [Qubit(QuantumRegister(2, "q"), 0),
+         Qubit(QuantumRegister(2, "q"), 1)],
+        [],
+    )
 
 
 @pytest.fixture
