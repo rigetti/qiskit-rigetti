@@ -122,7 +122,7 @@ def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> 
         backend_name=name,
         backend_version="",
         n_qubits=num_qubits,
-        basis_gates=["u1", "u2", "u3", "cx", "id"],
+        basis_gates=["u1", "u2", "u3", "cx", "id", "cz"],
         gates=[],
         local=local,
         simulator=simulator,
