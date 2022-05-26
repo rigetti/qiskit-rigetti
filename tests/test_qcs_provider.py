@@ -14,63 +14,56 @@
 #    limitations under the License.
 ##############################################################################
 from pytest_httpx import HTTPXMock
+import pytest
+import os
 
-from qiskit_rigetti import RigettiQCSProvider
+from qiskit_rigetti import RigettiQCSProvider, GetQuantumProcessorException
 
 
 def test_get_simulator(monkeypatch):
-    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
-
     backend = RigettiQCSProvider().get_simulator(num_qubits=42)
 
     assert backend.name() == "42q-qvm"
     assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
+    # The default QVM url is 127.0.0.1, but Gitlab CI may use a docker service url.
+    # Below we assert that the local value on the configuration is True/False depending
+    # on the `QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL` set during the test run.
+    assert (
+        "http://qvm:5000" != os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://127.0.0.1:5000")
+    ) == backend.configuration().local
+    assert backend.configuration().simulator
+    assert backend.configuration().coupling_map
 
 
 def test_get_simulator__noisy(monkeypatch):
-    monkeypatch.delenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", raising=False)
-
     backend = RigettiQCSProvider().get_simulator(num_qubits=42, noisy=True)
 
     assert backend.name() == "42q-noisy-qvm"
     assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
+    assert ("qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "")) == backend.configuration().local
+    assert backend.configuration().simulator
+    assert backend.configuration().coupling_map
 
 
-def test_get_simulator__remote(monkeypatch):
-    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://example.com/qvm")
-
-    backend = RigettiQCSProvider().get_simulator(num_qubits=42)
-
-    assert backend.name() == "42q-qvm"
-    assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is False
-    assert backend.configuration().simulator is True
+def test_run__backend_coupling_map():
+    backend = RigettiQCSProvider().get_simulator(num_qubits=3)
+    assert backend.configuration().coupling_map
+    assert [(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)] == sorted(backend.configuration().coupling_map)
 
 
-def test_get_simulator__localhost(monkeypatch):
-    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://localhost:9999/qvm")
+@pytest.mark.parametrize(
+    "qvm_url",
+    [
+        "http://example.com/qvm",
+        "http://localhost:9999/qvm",
+        "http://127.0.0.1:9999/qvm",
+    ],
+)
+def test_get_simulator__remote(qvm_url: str, monkeypatch):
+    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", qvm_url)
 
-    backend = RigettiQCSProvider().get_simulator(num_qubits=42)
-
-    assert backend.name() == "42q-qvm"
-    assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
-
-
-def test_get_simulator__local_ip(monkeypatch):
-    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://127.0.0.1:9999/qvm")
-
-    backend = RigettiQCSProvider().get_simulator(num_qubits=42)
-
-    assert backend.name() == "42q-qvm"
-    assert backend.configuration().num_qubits == 42
-    assert backend.configuration().local is True
-    assert backend.configuration().simulator is True
+    with pytest.raises(GetQuantumProcessorException):
+        _ = RigettiQCSProvider().get_simulator(num_qubits=42)
 
 
 def test_backends(httpx_mock: HTTPXMock):
