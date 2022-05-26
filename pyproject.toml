@@ -19,20 +19,20 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-qiskit = "^0.34.0"
+qiskit = ">=0.34.0"
 pyquil = "^3.0.0"
 numpy = "^1.20.1"
 importlib_metadata = {version = "*", python = "<3.8"}
 sphinx = { version = "^4.1.1", optional = true }
 sphinx-autoapi = { version = "^1.8.1", optional = true }
-furo = { version = "^2021.7.5-beta.38", optional = true }
-myst-parser = { version = "^0.15.1", optional = true }
+furo = { version = "*", optional = true }
+myst-parser = { version = "^0.17.0", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 nbsphinx = { version = "^0.8.6", optional = true }
 ipython = {version = "^7.25.0", optional = true}
 
 [tool.poetry.dev-dependencies]
-black = "^20.8b1"
+black = {version = "^22.1.0", extras = ["jupyter"]}
 flake8 = "^3.8.1"
 pytest = "^6.2.2"
 pytest-cov = "^2.11.1"
