@@ -30,19 +30,19 @@ myst-parser = { version = "^0.15.1", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 nbsphinx = { version = "^0.8.6", optional = true }
 ipython = {version = "^7.25.0", optional = true}
-
-[tool.poetry.dev-dependencies]
-black = "^20.8b1"
-flake8 = "^3.8.1"
-pytest = "^6.2.2"
-pytest-cov = "^2.11.1"
-pytest-httpx = "^0.9"
-mypy = "^0.800"
-pytest-mock = "^3.6.1"
-pip-licenses = "^3.5.1"
+black = { version = "^20.8b1", optional = true }
+flake8 = { version = "^3.8.1", optional = true }
+pytest = { version = "^6.2.2", optional = true }
+pytest-cov = { version = "^2.11.1", optional = true }
+pytest-httpx = { version = "^0.9", optional = true }
+mypy = { version = "^0.800", optional = true }
+pytest-mock = { version = "^3.6.1", optional = true }
+pip-licenses = { version = "^3.5.1", optional = true }
 
 [tool.poetry.extras]
+test = ["pytest", "pytest-cov", "pytest-httpx", "pytest-mock", "black", "flake8", "mypy"]
 docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild", "nbsphinx", "ipython"]
+licenses = ["pip-licenses"]
 
 [tool.black]
 line-length = 120
@@ -69,6 +69,26 @@ exclude = '''
 [tool.dephell.main]
 from = {format = "poetry", path = "pyproject.toml"}
 to = {format = "setuppy", path = "setup.py"}
+
+[tool.mypy]
+ignore_missing_imports = true
+
+# Enable options equivalent to the --strict command line arg
+warn_unused_configs = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+allow_redefinition = true
+
+no_implicit_reexport = false
+disallow_subclassing_any = false
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
