@@ -76,6 +76,19 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
                 if orig_reg.name == orig_readout_name:
                     idx = bit_info[clbit]["idx"]
                     m[2][i] = ro_reg[idx]
+
+        # fix classical bit references in instructions
+        for instruction in circuit._data:
+            for i, clbit in enumerate(instruction.clbits):
+                orig_reg = bit_info[clbit]["reg"]
+                if orig_reg.name == orig_readout_name:
+                    idx = bit_info[clbit]["idx"]
+                    # instruction.clbits is a tuple
+                    # convert to list and back to more easily replace an item
+                    clbit_list = list(instruction.clbits)
+                    clbit_list[i] = ro_reg[idx]
+                    instruction.clbits = tuple(clbit_list)
+
         break
 
 
