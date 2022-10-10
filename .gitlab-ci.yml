@@ -1,5 +1,5 @@
 default:
-  image: python:3.7
+  image: python:3.8
   tags:
     - ec2-docker
 
@@ -15,7 +15,7 @@ cache:
 
 .install-dependencies:
   &install-dependencies # Recommended install method for Poetry: https://python-poetry.org/docs/
-  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+  - curl -sSL https://install.python-poetry.org | python3 - --version 1.1.15
   - source $HOME/.poetry/env
   - poetry --version
   - poetry config virtualenvs.in-project true
@@ -51,10 +51,6 @@ Checks:
     - poetry run make test
   stage: test
 
-Test Unit (3.7):
-  extends: .unit-test
-  image: python:3.7
-
 Test Unit (3.8):
   extends: .unit-test
   image: python:3.8
@@ -62,6 +58,10 @@ Test Unit (3.8):
 Test Unit (3.9):
   extends: .unit-test
   image: python:3.9
+
+Test Unit (3.10):
+  extends: .unit-test
+  image: python:3.10
 
 .pypi-publish:
   stage: deploy
