@@ -16,7 +16,7 @@ cache:
 .install-dependencies:
   &install-dependencies # Recommended install method for Poetry: https://python-poetry.org/docs/
   - curl -sSL https://install.python-poetry.org | python3 - --version 1.1.15
-  - source $HOME/.poetry/env
+  - export PATH="~/.local/bin:$PATH"
   - poetry --version
   - poetry config virtualenvs.in-project true
   - poetry run python -m ensurepip --upgrade
