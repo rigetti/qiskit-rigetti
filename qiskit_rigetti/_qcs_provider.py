@@ -13,11 +13,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Any, Optional, List, Dict, cast
+from typing import Any, Optional, List, Dict
 
-import httpx
-from pyquil.api import EngagementManager
-from qcs_api_client.client import build_sync_client, QCSClientConfiguration
+from pyquil.api import QCSClient, list_quantum_computers
+from qcs_sdk.qpu.isa import InstructionSetArchitecture, get_instruction_set_architecture
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
 
@@ -34,24 +33,19 @@ class RigettiQCSProvider(ProviderV1):
         *,
         compiler_timeout: float = 10.0,
         execution_timeout: float = 10.0,
-        client_configuration: Optional[QCSClientConfiguration] = None,
-        engagement_manager: Optional[EngagementManager] = None,
+        client_configuration: Optional[QCSClient] = None,
     ) -> None:
         """
         Args:
             execution_timeout: Time limit for execution requests, in seconds.
             compiler_timeout: Time limit for compiler requests, in seconds.
             client_configuration: QCS client configuration. If one is not provided, a default will be loaded.
-            engagement_manager: QPU engagement manager. If one is not provided, a default one will be created.
         """
         super().__init__()
         self._backends: List[RigettiQCSBackend] = []
         self._compiler_timeout = compiler_timeout
         self._execution_timeout = execution_timeout
-        self._client_configuration = client_configuration or QCSClientConfiguration.load()
-        self._engagement_manager = engagement_manager or EngagementManager(
-            client_configuration=self._client_configuration
-        )
+        self._client_configuration = client_configuration or QCSClient.load()
 
     def backends(self, name: Optional[str] = None, **__: Any) -> List[RigettiQCSBackend]:
         """
@@ -65,14 +59,14 @@ class RigettiQCSProvider(ProviderV1):
             List[RigettiQCSBackend]: The list of matching backends.
         """
         if not self._backends:
-            for qpu, data in self._get_quantum_processors().items():
-                configuration = _configuration(qpu, num_qubits=data["num_qubits"], local=False, simulator=False)
+            for qpu, isa in self._get_quantum_processors().items():
+                num_qubits = len(isa.architecture.nodes)
+                configuration = _configuration(qpu, num_qubits=num_qubits, local=False, simulator=False)
                 self._backends.append(
                     RigettiQCSBackend(
                         compiler_timeout=self._compiler_timeout,
                         execution_timeout=self._execution_timeout,
                         client_configuration=self._client_configuration,
-                        engagement_manager=self._engagement_manager,
                         backend_configuration=configuration,
                         provider=self,
                     )
@@ -92,7 +86,7 @@ class RigettiQCSProvider(ProviderV1):
         Returns:
             RigettiQCSBackend: A backend representing the simulator
         """
-        qvm_url = self._client_configuration.profile.applications.pyquil.qvm_url
+        qvm_url = self._client_configuration.qvm_url
         local = qvm_url == "" or qvm_url.startswith("http://localhost") or qvm_url.startswith("http://127.0.0.1")
         noisy_str = "-noisy" if noisy else ""
         name = f"{num_qubits}q{noisy_str}-qvm"
@@ -102,7 +96,6 @@ class RigettiQCSProvider(ProviderV1):
             compiler_timeout=self._compiler_timeout,
             execution_timeout=self._execution_timeout,
             client_configuration=self._client_configuration,
-            engagement_manager=self._engagement_manager,
             backend_configuration=configuration,
             provider=self,
         )
@@ -110,11 +103,14 @@ class RigettiQCSProvider(ProviderV1):
 
         return backend
 
-    def _get_quantum_processors(self) -> Dict[str, Any]:
-        with build_sync_client(configuration=self._client_configuration) as qcs_client:  # type: httpx.Client
-            return cast(
-                Dict[str, Any], qcs_client.get("https://forest-server.qcs.rigetti.com/devices").json()["devices"]
-            )
+    def _get_quantum_processors(self) -> Dict[str, InstructionSetArchitecture]:
+        # For local testing, just bypass this call for now
+        # qpus = list_quantum_computers(qvms=False, client_configuration=self._client_configuration)
+        qpus = ["Aspen-M-3"]
+        return {
+            qpu: get_instruction_set_architecture(qpu, client=self._client_configuration)
+            for qpu in qpus
+        }
 
 
 def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> QasmBackendConfiguration:

@@ -94,6 +94,8 @@ class RigettiQCSJob(JobV1):
         for fn in before_compile:
             qasm = fn(qasm)
 
+        # import pdb
+        # pdb.set_trace()
         program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
         program = self._qc.compiler.quil_to_native_quil(program)
 

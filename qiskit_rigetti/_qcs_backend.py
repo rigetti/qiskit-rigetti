@@ -17,8 +17,7 @@ from typing import Optional, Any, Union, List, cast, Tuple
 from uuid import uuid4
 
 from pyquil import get_qc
-from pyquil.api import QuantumComputer, EngagementManager
-from qcs_api_client.client import QCSClientConfiguration
+from pyquil.api import QuantumComputer, QCSClient
 from qiskit import QuantumCircuit, ClassicalRegister
 from qiskit.circuit import Measure
 from qiskit.providers import BackendV1, Options, Provider
@@ -115,8 +114,7 @@ class RigettiQCSBackend(BackendV1):
         *,
         compiler_timeout: float,
         execution_timeout: float,
-        client_configuration: QCSClientConfiguration,
-        engagement_manager: EngagementManager,
+        client_configuration: QCSClient,
         backend_configuration: QasmBackendConfiguration,
         provider: Optional[Provider],
         auto_set_coupling_map: bool = True,
@@ -128,7 +126,6 @@ class RigettiQCSBackend(BackendV1):
             execution_timeout: Time limit for execution requests, in seconds.
             compiler_timeout: Time limit for compiler requests, in seconds.
             client_configuration: QCS client configuration.
-            engagement_manager: QPU engagement manager.
             backend_configuration: Backend configuration.
             provider: Parent provider.
             qc: The `QuantumComputer` this backend represents to Qiskit.
@@ -141,7 +138,6 @@ class RigettiQCSBackend(BackendV1):
         self._compiler_timeout = compiler_timeout
         self._execution_timeout = execution_timeout
         self._client_configuration = client_configuration
-        self._engagement_manager = engagement_manager
         self._qc = qc
         self._auto_set_coupling_map = auto_set_coupling_map
 
@@ -168,7 +164,6 @@ class RigettiQCSBackend(BackendV1):
                     compiler_timeout=self._compiler_timeout,
                     execution_timeout=self._execution_timeout,
                     client_configuration=self._client_configuration,
-                    engagement_manager=self._engagement_manager,
                 )
             except Exception as e:
                 raise GetQuantumProcessorException(

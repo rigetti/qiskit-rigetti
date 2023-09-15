@@ -20,7 +20,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
 qiskit = ">=0.38.0"
-pyquil = "^3.0.0"
+pyquil = "~4.0.0rc53"
 numpy = "^1.23.3"
 importlib_metadata = {version = "*", python = "<3.8"}
 sphinx = { version = "^4.1.1", optional = true }
@@ -46,7 +46,7 @@ docs = ["sphinx", "sphinx-autoapi", "furo", "myst-parser", "sphinx-autobuild", "
 
 [tool.black]
 line-length = 120
-target-version = ['py37']
+target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
 
