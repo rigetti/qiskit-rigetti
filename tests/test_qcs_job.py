@@ -134,7 +134,6 @@ def test_init__ensure_native_quil__false(backend: RigettiQCSBackend, mocker: Moc
     assert transpile_qasm_2_spy.call_count == 1, "transpile not performed correct number of times"
 
 
-
 def test_init__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)

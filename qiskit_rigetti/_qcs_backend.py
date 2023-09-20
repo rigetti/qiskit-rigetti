@@ -59,11 +59,7 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
         circuit.cregs[i] = ro_reg
 
         def map_ro_reg(clbits: Iterable[Clbit]) -> List[Clbit]:
-            return [
-                Clbit(ro_reg, clbit.index)
-                for clbit in clbits
-                if clbit.register.name == orig_readout_name
-            ]
+            return [Clbit(ro_reg, clbit.index) for clbit in clbits if clbit.register.name == orig_readout_name]
 
         circuit._clbits = map_ro_reg(circuit.clbits)
         circuit._clbit_indices = {

@@ -69,15 +69,20 @@ def test_get_simulator__remote(qvm_url: str, monkeypatch):
 def test_backends():
     def simple_isa(nodes: int):
         from json import dumps
-        return InstructionSetArchitecture.from_raw(dumps({
-            "architecture": {
-                "nodes": [{"node_id": i} for i in range(nodes)],
-                "edges": [],
-            },
-            "benchmarks": [],
-            "instructions": [],
-            "name": "_"
-        }))
+
+        return InstructionSetArchitecture.from_raw(
+            dumps(
+                {
+                    "architecture": {
+                        "nodes": [{"node_id": i} for i in range(nodes)],
+                        "edges": [],
+                    },
+                    "benchmarks": [],
+                    "instructions": [],
+                    "name": "_",
+                }
+            )
+        )
 
     provider = RigettiQCSProvider()
     provider._get_quantum_processors = lambda: {
