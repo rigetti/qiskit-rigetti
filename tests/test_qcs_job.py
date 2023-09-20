@@ -95,7 +95,7 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
     make_job(backend, circuit, qc, before_execute=[before_execute_hook])
 
     program: Program = native_quil_to_executable_spy.call_args[0][0]
-    assert program == new_quil
+    assert str(program) == str(new_quil)
 
 
 def test_init__ensure_native_quil__true(backend: RigettiQCSBackend, mocker: MockerFixture):
