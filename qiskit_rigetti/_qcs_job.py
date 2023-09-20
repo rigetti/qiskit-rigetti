@@ -94,10 +94,8 @@ class RigettiQCSJob(JobV1):
         for fn in before_compile:
             qasm = fn(qasm)
 
-        # import pdb
-        # pdb.set_trace()
-        program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        program = self._qc.compiler.quil_to_native_quil(program)
+        program = self._qc.compiler.transpile_qasm_2(qasm)
+        program = program.wrap_in_numshots_loop(shots)
 
         before_execute: List[PreExecutionHook] = self._options.get("before_execute", [])
         for fn in before_execute:
