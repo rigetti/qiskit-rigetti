@@ -89,7 +89,7 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
     )
 
     def before_execute_hook(quil: Program) -> Program:
-        assert quil == orig_quil
+        assert str(quil) == str(orig_quil)
         return new_quil
 
     make_job(backend, circuit, qc, before_execute=[before_execute_hook])
