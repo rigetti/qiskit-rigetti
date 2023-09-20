@@ -104,13 +104,8 @@ class RigettiQCSProvider(ProviderV1):
         return backend
 
     def _get_quantum_processors(self) -> Dict[str, InstructionSetArchitecture]:
-        # For local testing, just bypass this call for now
-        # qpus = list_quantum_computers(qvms=False, client_configuration=self._client_configuration)
-        qpus = ["Aspen-M-3"]
-        return {
-            qpu: get_instruction_set_architecture(qpu, client=self._client_configuration)
-            for qpu in qpus
-        }
+        qpus = list_quantum_computers(qvms=False, client_configuration=self._client_configuration)
+        return {qpu: get_instruction_set_architecture(qpu, client=self._client_configuration) for qpu in qpus}
 
 
 def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> QasmBackendConfiguration:
