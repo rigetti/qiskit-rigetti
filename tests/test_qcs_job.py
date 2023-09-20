@@ -80,8 +80,8 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
         "RX(pi/2) 0",
         "RZ(pi/2) 0",
         "RX(-pi/2) 0",
-        "MEASURE 1 ro[1]",
         "MEASURE 0 ro[0]",
+        "MEASURE 1 ro[1]",
     )
 
     new_quil = Program(
