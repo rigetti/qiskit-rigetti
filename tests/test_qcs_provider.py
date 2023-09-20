@@ -13,11 +13,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from pytest_httpx import HTTPXMock
 import pytest
 import os
 
-from qiskit_rigetti import RigettiQCSProvider, GetQuantumProcessorException
+from qcs_sdk.qpu.isa import InstructionSetArchitecture
+from qiskit_rigetti import RigettiQCSProvider
 
 
 def test_get_simulator(monkeypatch):
@@ -27,9 +27,9 @@ def test_get_simulator(monkeypatch):
     assert backend.configuration().num_qubits == 42
     # The default QVM url is 127.0.0.1, but Gitlab CI may use a docker service url.
     # Below we assert that the local value on the configuration is True/False depending
-    # on the `QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL` set during the test run.
+    # on the `QCS_SETTINGS_APPLICATIONS_QVM_URL` set during the test run.
     assert (
-        "http://qvm:5000" != os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "http://127.0.0.1:5000")
+        "http://qvm:5000" != os.getenv("QCS_SETTINGS_APPLICATIONS_QVM_URL", "http://127.0.0.1:5000")
     ) == backend.configuration().local
     assert backend.configuration().simulator
     assert backend.configuration().coupling_map
@@ -40,7 +40,7 @@ def test_get_simulator__noisy(monkeypatch):
 
     assert backend.name() == "42q-noisy-qvm"
     assert backend.configuration().num_qubits == 42
-    assert ("qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", "")) == backend.configuration().local
+    assert ("qvm:" not in os.getenv("QCS_SETTINGS_APPLICATIONS_QVM_URL", "")) == backend.configuration().local
     assert backend.configuration().simulator
     assert backend.configuration().coupling_map
 
@@ -60,28 +60,30 @@ def test_run__backend_coupling_map():
     ],
 )
 def test_get_simulator__remote(qvm_url: str, monkeypatch):
-    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL", qvm_url)
+    monkeypatch.setenv("QCS_SETTINGS_APPLICATIONS_QVM_URL", qvm_url)
 
-    with pytest.raises(GetQuantumProcessorException):
+    with pytest.raises(Exception, match="failed to retrieve quantum processor"):
         _ = RigettiQCSProvider().get_simulator(num_qubits=42)
 
 
-def test_backends(httpx_mock: HTTPXMock):
-    httpx_mock.add_response(
-        url="https://forest-server.qcs.rigetti.com/devices",
-        json={
-            "devices": {
-                "Device-1": {
-                    "num_qubits": 1,
-                },
-                "Device-2": {
-                    "num_qubits": 2,
-                },
+def test_backends():
+    def simple_isa(nodes: int):
+        from json import dumps
+        return InstructionSetArchitecture.from_raw(dumps({
+            "architecture": {
+                "nodes": [{"node_id": i} for i in range(nodes)],
+                "edges": [],
             },
-        },
-    )
+            "benchmarks": [],
+            "instructions": [],
+            "name": "_"
+        }))
 
     provider = RigettiQCSProvider()
+    provider._get_quantum_processors = lambda: {
+        "Device-1": simple_isa(1),
+        "Device-2": simple_isa(2),
+    }
     backends = provider.backends()
 
     assert len(backends) == 2
