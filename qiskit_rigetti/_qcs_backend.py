@@ -13,14 +13,13 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 ##############################################################################
-from typing import Optional, Any, Union, List, cast, Tuple
+from typing import Iterable, Optional, Any, Union, List, cast, Tuple
 from uuid import uuid4
 
 from pyquil import get_qc
-from pyquil.api import QuantumComputer, EngagementManager
-from qcs_api_client.client import QCSClientConfiguration
+from pyquil.api import QuantumComputer, QCSClient
 from qiskit import QuantumCircuit, ClassicalRegister
-from qiskit.circuit import Measure
+from qiskit.circuit import Measure, CircuitInstruction, Clbit
 from qiskit.providers import BackendV1, Options, Provider
 from qiskit.providers.models import QasmBackendConfiguration
 from qiskit.transpiler import CouplingMap
@@ -33,12 +32,9 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
     circuit.
     """
 
-    # cache register locations for each bit in circuit
-    bit_info = {bit: {"reg": reg, "idx": i} for reg in circuit.cregs for i, bit in enumerate(reg)}
+    measures: List[CircuitInstruction] = [d for d in circuit.data if isinstance(d[0], Measure)]
+    readout_names: List[str] = list({clbit.register.name for m in measures for clbit in m.clbits})
 
-    # NOTE: each measure is a tuple of the form (measure, qubits, classical bits)
-    measures = [d for d in circuit.data if isinstance(d[0], Measure)]
-    readout_names = list({bit_info[clbit]["reg"].name for m in measures for clbit in m[2]})
     num_readouts = len(readout_names)
 
     if num_readouts == 0:
@@ -62,32 +58,18 @@ def _prepare_readouts(circuit: QuantumCircuit) -> None:
         ro_reg = ClassicalRegister(size=reg.size, name="ro")
         circuit.cregs[i] = ro_reg
 
-        # fix classical bit references in circuit
-        for i, clbit in enumerate(circuit.clbits):
-            orig_reg = bit_info[clbit]["reg"]
-            if orig_reg.name == orig_readout_name:
-                idx = bit_info[clbit]["idx"]
-                circuit.clbits[i] = ro_reg[idx]
+        def map_ro_reg(clbits: Iterable[Clbit]) -> List[Clbit]:
+            return [Clbit(ro_reg, clbit.index) for clbit in clbits if clbit.register.name == orig_readout_name]
 
-        # fix classical bit references in measures
-        for m in measures:
-            for i, clbit in enumerate(m[2]):
-                orig_reg = bit_info[clbit]["reg"]
-                if orig_reg.name == orig_readout_name:
-                    idx = bit_info[clbit]["idx"]
-                    m[2][i] = ro_reg[idx]
+        circuit._clbits = map_ro_reg(circuit.clbits)
+        circuit._clbit_indices = {
+            Clbit(ro_reg, clbit.index): loc._replace(registers=[ro_reg])
+            for clbit, loc in circuit._clbit_indices.items()
+            if clbit.register.name == orig_readout_name
+        }
 
-        # fix classical bit references in instructions
         for instruction in circuit._data:
-            for i, clbit in enumerate(instruction.clbits):
-                orig_reg = bit_info[clbit]["reg"]
-                if orig_reg.name == orig_readout_name:
-                    idx = bit_info[clbit]["idx"]
-                    # instruction.clbits is a tuple
-                    # convert to list and back to more easily replace an item
-                    clbit_list = list(instruction.clbits)
-                    clbit_list[i] = ro_reg[idx]
-                    instruction.clbits = tuple(clbit_list)
+            instruction.clbits = map_ro_reg(instruction.clbits)
 
         break
 
@@ -115,8 +97,7 @@ class RigettiQCSBackend(BackendV1):
         *,
         compiler_timeout: float,
         execution_timeout: float,
-        client_configuration: QCSClientConfiguration,
-        engagement_manager: EngagementManager,
+        client_configuration: QCSClient,
         backend_configuration: QasmBackendConfiguration,
         provider: Optional[Provider],
         auto_set_coupling_map: bool = True,
@@ -128,7 +109,6 @@ class RigettiQCSBackend(BackendV1):
             execution_timeout: Time limit for execution requests, in seconds.
             compiler_timeout: Time limit for compiler requests, in seconds.
             client_configuration: QCS client configuration.
-            engagement_manager: QPU engagement manager.
             backend_configuration: Backend configuration.
             provider: Parent provider.
             qc: The `QuantumComputer` this backend represents to Qiskit.
@@ -141,7 +121,6 @@ class RigettiQCSBackend(BackendV1):
         self._compiler_timeout = compiler_timeout
         self._execution_timeout = execution_timeout
         self._client_configuration = client_configuration
-        self._engagement_manager = engagement_manager
         self._qc = qc
         self._auto_set_coupling_map = auto_set_coupling_map
 
@@ -168,7 +147,6 @@ class RigettiQCSBackend(BackendV1):
                     compiler_timeout=self._compiler_timeout,
                     execution_timeout=self._execution_timeout,
                     client_configuration=self._client_configuration,
-                    engagement_manager=self._engagement_manager,
                 )
             except Exception as e:
                 raise GetQuantumProcessorException(

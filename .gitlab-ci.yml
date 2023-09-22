@@ -15,7 +15,7 @@ cache:
 
 .install-dependencies:
   &install-dependencies # Recommended install method for Poetry: https://python-poetry.org/docs/
-  - curl -sSL https://install.python-poetry.org | python3 - --version 1.1.15
+  - curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
   - export PATH="~/.local/bin:$PATH"
   - poetry --version
   - poetry config virtualenvs.in-project true
@@ -36,8 +36,8 @@ Checks:
 
 .unit-test:
   variables:
-    QCS_SETTINGS_APPLICATIONS_PYQUIL_QVM_URL: "http://qvm:5000"
-    QCS_SETTINGS_APPLICATIONS_PYQUIL_QUILC_URL: "tcp://quilc:5555"
+    QCS_SETTINGS_APPLICATIONS_QVM_URL: "http://qvm:5000"
+    QCS_SETTINGS_APPLICATIONS_QUILC_URL: "tcp://quilc:5555"
   services:
     - name: rigetti/qvm
       alias: qvm

@@ -20,11 +20,9 @@ from typing import Optional, Dict, Any, List, Union, Iterator, cast
 
 import numpy as np
 from dateutil.tz import tzutc
-from pyquil import Program
 from pyquil.api import QuantumComputer
 from pyquil.api._qpu import QPUExecuteResponse
 from pyquil.api._qvm import QVMExecuteResponse
-from pyquil.quilbase import RawInstr
 from qiskit import QuantumCircuit
 from qiskit.providers import JobStatus, JobV1, Backend
 from qiskit.providers.models import QasmBackendConfiguration
@@ -94,8 +92,8 @@ class RigettiQCSJob(JobV1):
         for fn in before_compile:
             qasm = fn(qasm)
 
-        program = Program(RawInstr(qasm)).wrap_in_numshots_loop(shots)
-        program = self._qc.compiler.quil_to_native_quil(program)
+        program = self._qc.compiler.transpile_qasm_2(qasm)
+        program = program.wrap_in_numshots_loop(shots)
 
         before_execute: List[PreExecutionHook] = self._options.get("before_execute", [])
         for fn in before_execute:

@@ -35,7 +35,7 @@ def test_init__start_circuit_unsuccessful(backend: RigettiQCSBackend):
 def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     orig_qasm = "\n".join(
         [
@@ -66,9 +66,7 @@ def test_init__before_compile_hook(backend: RigettiQCSBackend, mocker: MockerFix
 
     make_job(backend, circuit, qc, before_compile=[before_compile_hook])
 
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
-    qasm = program.out(calibrations=False).rstrip()
-    assert qasm == new_qasm
+    assert transpile_qasm_2_spy.call_args[0][0] == new_qasm
 
 
 def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFixture):
@@ -82,8 +80,8 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
         "RX(pi/2) 0",
         "RZ(pi/2) 0",
         "RX(-pi/2) 0",
-        "MEASURE 1 ro[1]",
         "MEASURE 0 ro[0]",
+        "MEASURE 1 ro[1]",
     )
 
     new_quil = Program(
@@ -91,53 +89,61 @@ def test_init__before_execute_hook(backend: RigettiQCSBackend, mocker: MockerFix
     )
 
     def before_execute_hook(quil: Program) -> Program:
-        assert quil == orig_quil
+        assert str(quil) == str(orig_quil)
         return new_quil
 
     make_job(backend, circuit, qc, before_execute=[before_execute_hook])
 
     program: Program = native_quil_to_executable_spy.call_args[0][0]
-    assert program == new_quil
+    assert str(program) == str(new_quil)
 
 
 def test_init__ensure_native_quil__true(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     make_job(backend, circuit, qc, before_execute=[enable_active_reset], ensure_native_quil=True)
 
-    assert quil_to_native_quil_spy.call_count == 2, "compile not performed correct number of times"
+    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+    assert transpile_qasm_2_spy.call_count == 1, "transpile not performed correct number of times"
 
 
 def test_init__ensure_native_quil__ignored_if_no_pre_execution_hooks(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     make_job(backend, circuit, qc, ensure_native_quil=True)
 
-    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+    assert quil_to_native_quil_spy.call_count == 0, "compile not performed correct number of times"
+    assert transpile_qasm_2_spy.call_count == 1, "transpile not performed correct number of times"
 
 
 def test_init__ensure_native_quil__false(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     make_job(backend, circuit, qc, ensure_native_quil=False)
 
-    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+    assert quil_to_native_quil_spy.call_count == 0, "compile not performed correct number of times"
+    assert transpile_qasm_2_spy.call_count == 1, "transpile not performed correct number of times"
 
 
 def test_init__ensure_native_quil__missing(backend: RigettiQCSBackend, mocker: MockerFixture):
     circuit = make_circuit(num_qubits=2)
     qc = get_qc(backend.configuration().backend_name)
     quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     make_job(backend, circuit, qc)
 
-    assert quil_to_native_quil_spy.call_count == 1, "compile not performed correct number of times"
+    assert quil_to_native_quil_spy.call_count == 0, "compile not performed correct number of times"
+    assert transpile_qasm_2_spy.call_count == 1, "transpile not performed correct number of times"
 
 
 def test_init__circuit_with_barrier(backend: RigettiQCSBackend, mocker: MockerFixture):
@@ -147,7 +153,7 @@ def test_init__circuit_with_barrier(backend: RigettiQCSBackend, mocker: MockerFi
     circuit.h(0)
     circuit.measure([0, 1], [0, 1])
     qc = get_qc(backend.configuration().backend_name)
-    quil_to_native_quil_spy = mocker.spy(qc.compiler, "quil_to_native_quil")
+    transpile_qasm_2_spy = mocker.spy(qc.compiler, "transpile_qasm_2")
 
     expected_qasm = "\n".join(
         [
@@ -165,9 +171,7 @@ def test_init__circuit_with_barrier(backend: RigettiQCSBackend, mocker: MockerFi
     with pytest.warns(UserWarning, match="barriers are currently omitted during execution on a RigettiQCSBackend"):
         make_job(backend, circuit, qc)
 
-    program: Program = quil_to_native_quil_spy.call_args[0][0]
-    qasm = program.out(calibrations=False).rstrip()
-    assert qasm == expected_qasm
+    assert transpile_qasm_2_spy.call_args[0][0] == expected_qasm
 
 
 def test_result(job: RigettiQCSJob):
