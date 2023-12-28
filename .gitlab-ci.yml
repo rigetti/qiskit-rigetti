@@ -25,7 +25,7 @@ cache:
 .install-npm: &install-npm
   - curl -sL https://deb.nodesource.com/setup_12.x | bash -
   - apt-get update
-  - apt-get install -f -y nodejs
+  - apt-get install -f -y nodejs npm
   - npm i
 
 Checks:
