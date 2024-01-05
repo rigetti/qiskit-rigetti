@@ -63,7 +63,7 @@ circuit.cx(0, 1)
 circuit.measure([0, 1], [0, 1])
 
 # Execute the circuit on the backend
-job = execute(circuit, backend, shots=10)
+job = execute(circuit, backend, shots=10, coupling_map=backend.coupling_map)
 
 # Grab results from the job
 result = job.result()
