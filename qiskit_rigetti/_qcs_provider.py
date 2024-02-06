@@ -16,7 +16,7 @@
 from typing import Any, Optional, List, Dict
 
 from pyquil.api import QCSClient, list_quantum_computers
-from qcs_sdk.qpu.isa import InstructionSetArchitecture, get_instruction_set_architecture
+from qcs_sdk.qpu.isa import InstructionSetArchitecture, get_instruction_set_architecture, GetISAError
 from qiskit.providers import ProviderV1
 from qiskit.providers.models import QasmBackendConfiguration
 
@@ -105,7 +105,13 @@ class RigettiQCSProvider(ProviderV1):
 
     def _get_quantum_processors(self) -> Dict[str, InstructionSetArchitecture]:
         qpus = list_quantum_computers(qvms=False, client_configuration=self._client_configuration)
-        return {qpu: get_instruction_set_architecture(qpu, client=self._client_configuration) for qpu in qpus}
+        qpu_to_isa: Dict[str, InstructionSetArchitecture] = {}
+        for qpu in qpus:
+            try:
+                qpu_to_isa[qpu] = get_instruction_set_architecture(qpu, client=self._client_configuration)
+            except GetISAError:
+                pass
+        return qpu_to_isa
 
 
 def _configuration(name: str, num_qubits: int, local: bool, simulator: bool) -> QasmBackendConfiguration:
