@@ -493,13 +493,13 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "docutils"
-version = "0.17.1"
+version = "0.19"
 description = "Docutils -- Python Documentation Utilities"
 optional = true
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 files = [
-    {file = "docutils-0.17.1-py2.py3-none-any.whl", hash = "sha256:cf316c8370a737a022b72b56874f6602acf974a37a9fba42ec2876387549fc61"},
-    {file = "docutils-0.17.1.tar.gz", hash = "sha256:686577d2e4c32380bb50cbb22f575ed742d58168cee37e99117a854bcd88f125"},
+    {file = "docutils-0.19-py3-none-any.whl", hash = "sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc"},
+    {file = "docutils-0.19.tar.gz", hash = "sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6"},
 ]
 
 [[package]]
@@ -534,19 +534,19 @@ pyflakes = ">=2.5.0,<2.6.0"
 
 [[package]]
 name = "furo"
-version = "2022.9.29"
+version = "2024.1.29"
 description = "A clean customisable Sphinx documentation theme."
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "furo-2022.9.29-py3-none-any.whl", hash = "sha256:559ee17999c0f52728481dcf6b1b0cf8c9743e68c5e3a18cb45a7992747869a9"},
-    {file = "furo-2022.9.29.tar.gz", hash = "sha256:d4238145629c623609c2deb5384f8d036e2a1ee2a101d64b67b4348112470dbd"},
+    {file = "furo-2024.1.29-py3-none-any.whl", hash = "sha256:3548be2cef45a32f8cdc0272d415fcb3e5fa6a0eb4ddfe21df3ecf1fe45a13cf"},
+    {file = "furo-2024.1.29.tar.gz", hash = "sha256:4d6b2fe3f10a6e36eb9cc24c1e7beb38d7a23fc7b3c382867503b7fcac8a1e02"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = "*"
 pygments = ">=2.7"
-sphinx = ">=4.0,<6.0"
+sphinx = ">=6.0,<8.0"
 sphinx-basic-ng = "*"
 
 [[package]]
@@ -2623,26 +2623,26 @@ files = [
 
 [[package]]
 name = "sphinx"
-version = "5.3.0"
+version = "6.2.1"
 description = "Python documentation generator"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "Sphinx-5.3.0.tar.gz", hash = "sha256:51026de0a9ff9fc13c05d74913ad66047e104f56a129ff73e174eb5c3ee794b5"},
-    {file = "sphinx-5.3.0-py3-none-any.whl", hash = "sha256:060ca5c9f7ba57a08a1219e547b269fadf125ae25b06b9fa7f66768efb652d6d"},
+    {file = "Sphinx-6.2.1.tar.gz", hash = "sha256:6d56a34697bb749ffa0152feafc4b19836c755d90a7c59b72bc7dfd371b9cc6b"},
+    {file = "sphinx-6.2.1-py3-none-any.whl", hash = "sha256:97787ff1fa3256a3eef9eda523a63dbf299f7b47e053cfcf684a1c2a8380c912"},
 ]
 
 [package.dependencies]
 alabaster = ">=0.7,<0.8"
 babel = ">=2.9"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
-docutils = ">=0.14,<0.20"
+docutils = ">=0.18.1,<0.20"
 imagesize = ">=1.3"
 importlib-metadata = {version = ">=4.8", markers = "python_version < \"3.10\""}
 Jinja2 = ">=3.0"
 packaging = ">=21.0"
-Pygments = ">=2.12"
-requests = ">=2.5.0"
+Pygments = ">=2.13"
+requests = ">=2.25.0"
 snowballstemmer = ">=2.0"
 sphinxcontrib-applehelp = "*"
 sphinxcontrib-devhelp = "*"
@@ -2653,31 +2653,29 @@ sphinxcontrib-serializinghtml = ">=1.1.5"
 
 [package.extras]
 docs = ["sphinxcontrib-websupport"]
-lint = ["docutils-stubs", "flake8 (>=3.5.0)", "flake8-bugbear", "flake8-comprehensions", "flake8-simplify", "isort", "mypy (>=0.981)", "sphinx-lint", "types-requests", "types-typed-ast"]
-test = ["cython", "html5lib", "pytest (>=4.6)", "typed_ast"]
+lint = ["docutils-stubs", "flake8 (>=3.5.0)", "flake8-simplify", "isort", "mypy (>=0.990)", "ruff", "sphinx-lint", "types-requests"]
+test = ["cython", "filelock", "html5lib", "pytest (>=4.6)"]
 
 [[package]]
 name = "sphinx-autoapi"
-version = "2.1.1"
+version = "3.0.0"
 description = "Sphinx API documentation generator"
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "sphinx-autoapi-2.1.1.tar.gz", hash = "sha256:fbadb96e79020d6b0ec45d888517bf816d6b587a2d340fbe1ec31135e300a6c8"},
-    {file = "sphinx_autoapi-2.1.1-py2.py3-none-any.whl", hash = "sha256:d8da890477bd18e3327cafdead9d5a44a7d798476c6fa32492100e288250a5a3"},
+    {file = "sphinx-autoapi-3.0.0.tar.gz", hash = "sha256:09ebd674a32b44467222b0fb8a917b97c89523f20dbf05b52cb8a3f0e15714de"},
+    {file = "sphinx_autoapi-3.0.0-py2.py3-none-any.whl", hash = "sha256:ea207793cba1feff7b2ded0e29364f2995a4d157303a98603cee0ce94cea2688"},
 ]
 
 [package.dependencies]
 anyascii = "*"
-astroid = ">=2.7"
+astroid = {version = ">=2.7", markers = "python_version < \"3.12\""}
 Jinja2 = "*"
 PyYAML = "*"
-sphinx = ">=5.2.0"
+sphinx = ">=6.1.0"
 
 [package.extras]
 docs = ["furo", "sphinx", "sphinx-design"]
-dotnet = ["sphinxcontrib-dotnetdomain"]
-go = ["sphinxcontrib-golangdomain"]
 
 [[package]]
 name = "sphinx-autobuild"
@@ -3169,4 +3167,4 @@ docs = ["furo", "ipython", "myst-parser", "nbsphinx", "sphinx", "sphinx-autoapi"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "e432e5f60c4b5d656b872f0a1f3464b0e0930b4deaedef6c16219920085a62a6"
+content-hash = "d32d995ed2046eb1428bf9acee5eaf28fb305c56696d3b9faf10ea1ba84a9ca1"
