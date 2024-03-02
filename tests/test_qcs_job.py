@@ -192,6 +192,7 @@ def test_result(job: RigettiQCSJob):
     assert result_0.status == "Completed successfully"
     assert result_0.shots == 1000
     assert len(result_0.data.memory) == 1000
+    assert result_0.execution_duration_microseconds == None
 
     # Note: this can flake if number of shots is not large enough -- 1000 should be enough
     assert result_0.data.counts.keys() == {"00", "01"}

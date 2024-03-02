@@ -144,6 +144,7 @@ class RigettiQCSJob(JobV1):
             success=success,
             results=results,
             date=now,
+            execution_duration_microseconds=[r.execution_duration_microseconds for r in results],
         )
 
         self._status = JobStatus.DONE if success else JobStatus.ERROR
@@ -153,7 +154,8 @@ class RigettiQCSJob(JobV1):
         shots = self._options["shots"]
 
         for circuit_idx, response in enumerate(self._responses):
-            states = self._qc.qam.get_result(response).readout_data["ro"]
+            execution_result = self._qc.qam.get_result(response)
+            states = execution_result.readout_data["ro"]
             memory = list(map(_to_binary_str, np.array(states)))
             success = True
             status = "Completed successfully"
@@ -165,6 +167,7 @@ class RigettiQCSJob(JobV1):
                 success=success,
                 status=status,
                 data=ExperimentResultData(counts=Counter(memory), memory=memory),
+                execution_duration_microseconds=execution_result.execution_duration_microseconds,
             )
 
     def cancel(self) -> None:
