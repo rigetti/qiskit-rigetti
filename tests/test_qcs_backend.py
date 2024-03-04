@@ -26,6 +26,7 @@ from qiskit_rigetti.gates import XYGate
 def test_run(backend: RigettiQCSBackend):
     circuit = make_circuit()
 
+    circuit = transpile(circuit, backend)
     job = backend.run(circuit, shots=10)
 
     assert job.backend() is backend
@@ -41,7 +42,8 @@ def test_run__multiple_circuits(backend: RigettiQCSBackend):
     circuit1 = make_circuit(num_qubits=2)
     circuit2 = make_circuit(num_qubits=3)
 
-    job = backend.run([circuit1, circuit2], shots=10)
+    circuits_list = transpile([circuit1, circuit2], backend)
+    job = backend.run(circuits_list, shots=10)
 
     assert job.backend() is backend
     result = job.result()
@@ -71,7 +73,7 @@ def test_run__parametric_circuits(backend: RigettiQCSBackend):
     circuit2.measure([0], [0])
 
     job = backend.run(
-        [circuit1, circuit2],
+        transpile([circuit1, circuit2], backend),
         shots=1000,
         parameter_binds=[
             {t: 1.0},
@@ -104,6 +106,7 @@ def test_run__readout_register_not_named_ro(backend: RigettiQCSBackend):
     circuit.measure([0, 1], [0, 1])
     qasm_before = circuit.qasm()
 
+    circuit = transpile(circuit, backend)
     job = backend.run(circuit, shots=10)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
@@ -123,6 +126,7 @@ def test_run__multiple_registers__single_readout(backend: RigettiQCSBackend):
     circuit.measure([0, 1], [readout_reg[0], readout_reg[1]])
     qasm_before = circuit.qasm()
 
+    circuit = transpile(circuit, backend)
     job = backend.run(circuit, shots=10)
 
     assert circuit.qasm() == qasm_before, "should not modify original circuit"
@@ -143,6 +147,7 @@ def test_run__multiple_readout_registers(backend: RigettiQCSBackend):
     circuit = QuantumCircuit(qr, cr, cr2)
     circuit.measure([qr[0], qr[1]], [cr[0], cr2[0]])
 
+    circuit = transpile(circuit, backend)
     with pytest.raises(RuntimeError, match="Multiple readout registers are unsupported on QCSBackend; found c, c2"):
         backend.run(circuit, shots=10)
 
@@ -152,6 +157,7 @@ def test_run__no_measurments(backend: RigettiQCSBackend):
     cr = ClassicalRegister(1, "c")
     circuit = QuantumCircuit(qr, cr)
 
+    circuit = transpile(circuit, backend)
     with pytest.raises(RuntimeError, match="Circuit has no measurements"):
         backend.run(circuit, shots=10)
 

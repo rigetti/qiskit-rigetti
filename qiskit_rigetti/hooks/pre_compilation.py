@@ -19,6 +19,7 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
     Examples:
         Applying rewiring to a program::
 
+            >>> from qiskit import transpile
             >>> from qiskit_rigetti import RigettiQCSProvider, QuilCircuit
             >>> from qiskit_rigetti.hooks.pre_compilation import set_rewiring
 
@@ -26,6 +27,7 @@ def set_rewiring(rewiring: str) -> PreCompilationHook:
             >>> backend = p.get_simulator(num_qubits=2, noisy=True)
             >>> circuit = QuilCircuit(2, 2)
             >>> _ = circuit.measure([0, 1], [0, 1])
+            >>> circuit = transpile(circuit, backend)
             >>> job = backend.run(circuit, shots=10, before_compile=[set_rewiring("NAIVE")])
     """
 
