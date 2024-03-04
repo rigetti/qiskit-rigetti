@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 from pyquil.simulation.matrices import CPHASE00, CPHASE01, CPHASE10
-from qiskit.extensions import UnitaryGate
+from qiskit.circuit.library import UnitaryGate
 
 
 class CPhase00Gate(UnitaryGate):
