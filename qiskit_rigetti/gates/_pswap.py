@@ -23,6 +23,7 @@ try:
 except ImportError:
     from qiskit.extensions import UnitaryGate
 
+
 class PSwapGate(UnitaryGate):
     """
     Class for representing a parametric Swap gate
