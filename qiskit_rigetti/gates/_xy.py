@@ -16,7 +16,12 @@
 __all__ = ["XYGate"]
 
 from pyquil.simulation.matrices import XY
-from qiskit.circuit.library import UnitaryGate
+
+try:
+    # qiskit>=1.0
+    from qiskit.circuit.library import UnitaryGate
+except ImportError:
+    from qiskit.extensions import UnitaryGate
 
 
 class XYGate(UnitaryGate):

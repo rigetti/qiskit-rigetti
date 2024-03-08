@@ -16,7 +16,12 @@
 __all__ = ["CanonicalGate"]
 
 import numpy as np
-from qiskit.circuit.library import UnitaryGate
+
+try:
+    # qiskit>=1.0
+    from qiskit.circuit.library import UnitaryGate
+except ImportError:
+    from qiskit.extensions import UnitaryGate
 
 
 class CanonicalGate(UnitaryGate):
