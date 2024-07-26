@@ -19,7 +19,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-qiskit = ">=0.38.0"
+qiskit = ">=0.38.0,<1.0.0"
 pyquil = ">=4.0.0,<5.0.0"
 numpy = "^1.23.3"
 importlib_metadata = {version = "*", python = "<3.8"}
