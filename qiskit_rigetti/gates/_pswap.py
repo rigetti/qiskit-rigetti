@@ -16,7 +16,12 @@
 __all__ = ["PSwapGate"]
 
 from pyquil.simulation.matrices import PSWAP
-from qiskit.extensions import UnitaryGate
+
+try:
+    # qiskit>=1.0
+    from qiskit.circuit.library import UnitaryGate
+except ImportError:
+    from qiskit.extensions import UnitaryGate
 
 
 class PSwapGate(UnitaryGate):
