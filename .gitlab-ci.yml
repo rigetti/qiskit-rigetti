@@ -1,7 +1,7 @@
 default:
   image: python:3.8
   tags:
-    - ec2-docker
+    - default
 
 stages:
   - test
