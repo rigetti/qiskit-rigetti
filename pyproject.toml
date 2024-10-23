@@ -29,6 +29,7 @@ myst-parser = { version = "^0.19.2", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 nbsphinx = { version = "^0.8.6", optional = true }
 ipython = {version = "^7.25.0", optional = true}
+types-python-dateutil = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^22.1.0", extras = ["jupyter"]}
