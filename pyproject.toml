@@ -18,11 +18,10 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9,<3.13"
 qiskit = ">=0.38.0,<1.0.0"
-pyquil = ">=4.0.0,<5.0.0"
+pyquil = ">=4.14.3,<5.0.0"
 numpy = "^1.23.3"
-importlib_metadata = {version = "*", python = "<3.8"}
 sphinx = { version = "^6.1.0", optional = true }
 sphinx-autoapi = { version = "^3.0.0", optional = true }
 furo = { version = "*", optional = true }
@@ -30,15 +29,16 @@ myst-parser = { version = "^0.19.2", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 nbsphinx = { version = "^0.8.6", optional = true }
 ipython = {version = "^7.25.0", optional = true}
+types-python-dateutil = "^2.9.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^22.1.0", extras = ["jupyter"]}
 flake8 = "^5.0.4"
-pytest = "^6.2.2"
-pytest-cov = "^2.11.1"
-pytest-httpx = "^0.9"
-mypy = "0.982"
-pytest-mock = "^3.6.1"
+pytest = "^8.3.3"
+pytest-cov = "^5.0.0"
+pytest-httpx = "^0.32.0"
+mypy = "^1.13.0"
+pytest-mock = "^3.14.0"
 pip-licenses = "^3.5.1"
 
 [tool.poetry.extras]
