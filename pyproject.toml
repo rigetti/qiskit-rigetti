@@ -37,7 +37,7 @@ flake8 = "^5.0.4"
 pytest = "^8.3.3"
 pytest-cov = "^2.11.1"
 pytest-httpx = "^0.32.0"
-mypy = "0.982"
+mypy = "^1.13.0"
 pytest-mock = "^3.6.1"
 pip-licenses = "^3.5.1"
 
